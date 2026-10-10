@@ -1,0 +1,10 @@
+{
+  "name": "meerkat-vision-quest",
+  "private": true,
+  "scripts": {
+    "dev:api": "backend/.venv/bin/uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000",
+    "dev:web": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm run build && backend/.venv/bin/uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000"
+  }
+}

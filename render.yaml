@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: meerkat-vision-quest
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: MVQ_SITE_PASSWORD
+        sync: false
