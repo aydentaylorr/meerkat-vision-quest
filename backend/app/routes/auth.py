@@ -74,20 +74,20 @@ def login(body: LoginIn, request: Request, db: Conn = Depends(get_db)):
 
 @router.post("/auth/logout", status_code=204)
 def logout(
-    authorization: str | None = Header(default=None),
+    x_session_token: str | None = Header(default=None),
     _user: Row = Depends(current_user),
     db: Conn = Depends(get_db),
 ):
-    db.execute("DELETE FROM sessions WHERE token_hash = ?", (hash_token(authorization[7:]),))
+    db.execute("DELETE FROM sessions WHERE token_hash = ?", (hash_token(x_session_token),))
 
 
 @router.get("/me", response_model=SessionOut)
 def me(
-    authorization: str | None = Header(default=None),
+    x_session_token: str | None = Header(default=None),
     user: Row = Depends(current_user),
     db: Conn = Depends(get_db),
 ):
-    return SessionOut(token=authorization[7:], user=_user_out(user), state=_load_state(db, user["id"]))
+    return SessionOut(token=x_session_token, user=_user_out(user), state=_load_state(db, user["id"]))
 
 
 @router.patch("/me", response_model=UserOut)
