@@ -184,6 +184,14 @@ body.contrast .notice{background:#2a2410;}
   background:linear-gradient(180deg,#e9a95c,#dd914a);box-shadow:0 4px 0 #b9762f;}
 .mcard.up{background:linear-gradient(180deg,#fffaf0,#fff0d6);box-shadow:0 4px 0 var(--line);}
 .mcard.matched{background:linear-gradient(180deg,#9be07f,#7ac943);box-shadow:0 4px 0 var(--green-d);}
+.mmgrid{display:grid;gap:.6rem;margin:.6rem auto 0;width:100%;}
+.mmcard{aspect-ratio:1/1;border-radius:18px;display:grid;place-items:center;cursor:pointer;user-select:none;
+  font-size:var(--mfs,3rem);line-height:1;color:#fff;
+  background:linear-gradient(180deg,#e9a95c,#dd914a);box-shadow:0 5px 0 #b9762f;}
+.mmcard .back{font-size:.62em;opacity:.55;}
+.mmcard.up{background:linear-gradient(180deg,#fffaf0,#fff0d6);box-shadow:0 5px 0 var(--line);animation:mflip .22s ease;}
+.mmcard.matched{background:linear-gradient(180deg,#9be07f,#7ac943);box-shadow:0 5px 0 var(--green-d);cursor:default;animation:mflip .22s ease;}
+@keyframes mflip{from{transform:scale(.86)}to{transform:scale(1)}}
 
 .srow{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:2px dotted var(--line);}
 .srow:last-child{border-bottom:none;}
@@ -1259,11 +1267,19 @@ function renderHud(){
 }
 
 /* mode: 'dock' (bottom sheet) | 'focus' (centred play surface) | 'strip' (thin bar) */
-function card(html, mode){
+/* Swaps the card's contents. When a card of the same kind is already showing it stays
+   perfectly still (no pop-in), so only the contents change; pass animate=true to pop it in. */
+function card(html, mode, animate){
   mode = mode || 'dock';
   const c = $('#cards');
+  const panel = c.firstElementChild;
+  if(!animate && panel && panel.classList.contains('panel') && panel.classList.contains(mode)){
+    panel.firstElementChild.innerHTML = html;
+    panel.scrollTop = 0;
+  } else {
+    c.innerHTML = `<div class="panel ${mode}"><div class="inner">${html}</div></div>`;
+  }
   c.className = mode;
-  c.innerHTML = `<div class="panel ${mode}"><div class="inner">${html}</div></div>`;
   $('#scrim').classList.toggle('on', mode === 'focus');
 }
 function clearCard(){ $('#cards').innerHTML = ''; $('#cards').className = ''; $('#scrim').classList.remove('on'); }
@@ -1382,11 +1398,15 @@ function runModule(grade, moduleKey, opts, playFn){
 
 function countdownThen(label, prompt, fn){
   let n = 3;
-  const paint = () => card(`<div class="ctitle">${label}</div>
-    <div class="cbig" style="font-size:6rem;color:var(--orange)">${n > 0 ? n : 'GO!'}</div>
+  card(`<div class="ctitle">${label}</div>
+    <div class="cbig" id="cdNum" style="font-size:6rem;color:var(--orange)">3</div>
     <div class="cmuted center">${prompt}</div>`, 'focus');
-  paint();
-  const tick = () => { n--; if(n < 0){ fn(); return; } paint(); later(tick, 700); };
+  const tick = () => {
+    n--;
+    if(n < 0){ fn(); return; }
+    const el = $('#cdNum'); if(el) el.textContent = n > 0 ? n : 'GO!';
+    later(tick, 700);
+  };
   later(tick, 700);
 }
 
@@ -1431,7 +1451,7 @@ function finishModule(grade, moduleKey, score, pass, detailText){
       ${!pass ? `<button class="abtn o" onclick="retryModule()">Try again</button>` : ''}
       <button class="abtn ${pass ? '' : 'ghost sm'}" onclick="openGrade(${grade})">Back to modules</button>
       <button class="abtn ghost sm" onclick="toMap()">Back to the map</button>
-    </div>`, 'focus');
+    </div>`, 'focus', true);
 }
 function retryModule(){ if(RUN && RUN.retryFn) RUN.retryFn(); }
 
@@ -1942,41 +1962,51 @@ function exMem(grade){
   deck = shuffle(deck).map((d, idx) => Object.assign({ id:idx, up:false, matched:false }, d));
 
   let up = [], matched = 0, moves = 0, lock = false, reshuffled = false, timeUp = false, left = c.time;
+  const rows = Math.ceil(deck.length / c.cols);
 
-  function draw(){
-    card(`<div class="ctitle">${c.label}</div>
-      <div class="center cmuted">${moves} tries${c.time ? ' · ⏳ ' + left + 's' : ''}</div>
-      <div class="mgrid" style="grid-template-columns:repeat(${c.cols},1fr)">
-        ${deck.map(d => `<div class="mcard ${d.matched ? 'matched' : (d.up ? 'up' : '')}" onclick="__flip(${d.id})">
-          ${d.matched || d.up ? d.f : '🐾'}</div>`).join('')}
-      </div>
-      <div class="center cmuted" style="margin-top:.6rem">${c.prompt}</div>`, 'focus');
-  }
+  // The board is built once; flips only change the card that was touched, so nothing re-animates.
+  card(`<div class="ctitle">${c.label}</div>
+    <div class="center cmuted" id="mmStatus"></div>
+    <div class="mmgrid" id="mmGrid" style="grid-template-columns:repeat(${c.cols},1fr);max-width:min(100%,calc((100vh - 17rem) * ${c.cols} / ${rows}))">
+      ${deck.map((d, i) => `<div class="mmcard" id="mm${i}" onclick="__flip(${i})"></div>`).join('')}
+    </div>
+    <div class="center cmuted" style="margin-top:.6rem">${c.prompt}</div>`, 'focus');
+
+  const status = () => { const el = $('#mmStatus'); if(el) el.textContent = `${moves} tries${c.time ? ' · ⏳ ' + left + 's' : ''}`; };
+  const paint = d => {
+    const el = $('#mm' + d.id); if(!el) return;
+    el.className = 'mmcard' + (d.matched ? ' matched' : d.up ? ' up' : '');
+    el.innerHTML = d.matched || d.up ? d.f : '<span class="back">🐾</span>';
+  };
+  const grid = $('#mmGrid');
+  const fit = () => { const first = $('#mm0'); if(grid && first) grid.style.setProperty('--mfs', (first.clientWidth * 0.58) + 'px'); };
+  new ResizeObserver(fit).observe(grid);
+  fit(); deck.forEach(paint); status();
 
   window.__flip = id => {
     if(lock || timeUp) return;
     const d = deck.find(x => x.id === id);
     if(!d || d.up || d.matched) return;
-    d.up = true; up.push(d); draw();
+    d.up = true; up.push(d); paint(d);
     if(up.length === 2){
-      moves++; lock = true;
+      moves++; status(); lock = true;
       const [x, y] = up;
       if(x.k === y.k){
         later(() => {
-          x.matched = y.matched = true; up = []; lock = false; matched++; draw();
+          x.matched = y.matched = true; up = []; lock = false; matched++; paint(x); paint(y);
           if(c.reshuffle && !reshuffled && matched === Math.ceil(c.pairs/2) && matched < c.pairs){
             reshuffled = true; toast('The cards shuffle!');
             later(() => {
               const open = deck.filter(z => !z.matched);
               const pos = shuffle(open.map(z => z.id));
-              open.forEach((z,n) => { z.id = pos[n]; });
-              deck.sort((p,q) => p.id - q.id); draw();
+              open.forEach((z, n) => { z.id = pos[n]; });
+              deck.sort((p, q) => p.id - q.id); deck.forEach(paint);
             }, 700);
           }
           if(matched === c.pairs) end();
         }, 380);
       } else {
-        later(() => { x.up = y.up = false; up = []; lock = false; draw(); }, 850);
+        later(() => { x.up = y.up = false; up = []; lock = false; paint(x); paint(y); }, 850);
       }
     }
   };
@@ -1985,10 +2015,9 @@ function exMem(grade){
     finishModule(grade, 'mem', score, score >= c.pass, `${matched} of ${c.pairs} pairs · ${moves} tries${timeUp ? ' · time ran out' : ''}`);
   }
   if(c.time){
-    const tick = () => { left--; draw(); if(left <= 0){ timeUp = true; end(); return; } later(tick, 1000); };
+    const tick = () => { left--; status(); if(left <= 0){ timeUp = true; end(); return; } later(tick, 1000); };
     later(tick, 1000);
   }
-  draw();
 }
 
 /* ==========================================================================
