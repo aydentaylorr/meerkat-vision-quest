@@ -935,6 +935,7 @@ let SESSION = { start: Date.now(), capShown:false };
    ACCOUNT + CLOUD SAVE — progress lives on the server (backend/), keyed to the
    signed-in user. Only the sign-in token is kept in this browser.
    ========================================================================== */
+const BUILD = '__BUILD__';
 const TOKEN_KEY = 'mvq.token';
 const PROFILE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.5 8.5-7.5s8.5 2.8 8.5 7.5z"/></svg>`;
 let TOKEN = store.read(TOKEN_KEY, null);
@@ -2319,7 +2320,8 @@ function profileSheet(){
     <div class="autherr" id="profMsg"></div>
     <div class="stack">
       <button class="abtn" onclick="saveProfile()">Save grade</button>
-      <button class="abtn ghost sm" onclick="logout()">Log out</button></div>`;
+      <button class="abtn ghost sm" onclick="logout()">Log out</button></div>
+    <div class="cmuted center" style="font-size:.72rem;margin-top:.8rem">Game version ${esc(BUILD.startsWith('__') ? 'dev' : BUILD)}</div>`;
 }
 async function saveProfile(){
   const msg = (t, ok) => { const e = $('#profMsg'); if(e){ e.textContent = t; e.style.color = ok ? 'var(--green-d)' : ''; } };
@@ -2332,6 +2334,18 @@ async function saveProfile(){
     msg(e.message);
   }
 }
+
+/* when a new version goes live, an open tab picks it up on its own (never in the middle of a task) */
+async function checkForUpdate(){
+  if(BUILD.startsWith('__') || RUN || document.visibilityState !== 'visible') return;
+  try{
+    const res = await fetch('/api/health', { cache:'no-store' });
+    const d = await res.json();
+    if(d.version && d.version !== BUILD) location.reload();
+  }catch(e){}
+}
+setInterval(checkForUpdate, 30000);
+document.addEventListener('visibilitychange', checkForUpdate);
 
 async function boot(){
   if(!TOKEN){ authCard(); return; }
