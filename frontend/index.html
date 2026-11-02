@@ -936,6 +936,7 @@ let SESSION = { start: Date.now(), capShown:false };
    signed-in user. Only the sign-in token is kept in this browser.
    ========================================================================== */
 const BUILD = '__BUILD__';
+const BUILD_LABEL = BUILD.startsWith('__') ? 'dev' : BUILD;
 const TOKEN_KEY = 'mvq.token';
 const PROFILE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.5 8.5-7.5s8.5 2.8 8.5 7.5z"/></svg>`;
 let TOKEN = store.read(TOKEN_KEY, null);
@@ -1318,7 +1319,8 @@ function mapCard(){
     <div class="chead">${all ? 'Every trail explored' : gi.title}</div>
     <div class="center cmuted" style="margin-bottom:.5rem">${all ? 'You’ve completed all 12 grades!' : `${gradeModulesDoneCount(grade)} of 4 modules done`}</div>
     ${all ? '' : `<button class="abtn" onclick="openGrade(${grade})">Enter</button>`}
-    <button class="abtn ghost sm" style="margin-top:.55rem" onclick="openSheet('parent')">For grown-ups</button>`,
+    <button class="abtn ghost sm" style="margin-top:.55rem" onclick="openSheet('parent')">For grown-ups</button>
+    <div class="cmuted center" style="font-size:.7rem;margin-top:.5rem">Version ${esc(BUILD_LABEL)}</div>`,
     'dock');
 }
 
@@ -2236,7 +2238,8 @@ function authCard(msg){
     ${reg ? `<select class="vinput" id="auGrade" aria-label="What grade are you in?">${gradeOptions(AUTH.grade, 'What grade are you in?')}</select>
       <div class="cmuted center" style="font-size:.8rem">Tip: use a fun nickname instead of your real name, and ask a grown-up to help.</div>` : ''}
     <div class="autherr" id="auErr">${esc(msg || '')}</div>
-    <button class="abtn" id="auGo" onclick="authSubmit()">${reg ? 'Create my account' : 'Log in'}</button>`, 'focus');
+    <button class="abtn" id="auGo" onclick="authSubmit()">${reg ? 'Create my account' : 'Log in'}</button>
+    <div class="cmuted center" style="font-size:.7rem;margin-top:.5rem">Version ${esc(BUILD_LABEL)}</div>`, 'focus');
   document.querySelectorAll('#auUser, #auPass').forEach(el => {
     el.onkeydown = e => { if(e.key === 'Enter') authSubmit(); };
   });
@@ -2321,7 +2324,7 @@ function profileSheet(){
     <div class="stack">
       <button class="abtn" onclick="saveProfile()">Save grade</button>
       <button class="abtn ghost sm" onclick="logout()">Log out</button></div>
-    <div class="cmuted center" style="font-size:.72rem;margin-top:.8rem">Game version ${esc(BUILD.startsWith('__') ? 'dev' : BUILD)}</div>`;
+    <div class="cmuted center" style="font-size:.72rem;margin-top:.8rem">Game version ${esc(BUILD_LABEL)}</div>`;
 }
 async function saveProfile(){
   const msg = (t, ok) => { const e = $('#profMsg'); if(e){ e.textContent = t; e.style.color = ok ? 'var(--green-d)' : ''; } };
