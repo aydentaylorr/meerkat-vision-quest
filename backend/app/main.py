@@ -1,5 +1,6 @@
 import base64
 import hmac
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -17,6 +18,9 @@ async def lifespan(_: FastAPI):
     yield
     close_db()
 
+
+# Make browsers re-check the page on every visit so a new deploy shows up straight away.
+NO_CACHE = {"Cache-Control": "no-cache"}
 
 app = FastAPI(title="Meerkat Vision Quest API", lifespan=lifespan)
 app.include_router(auth.router)
@@ -46,7 +50,7 @@ async def staging_gate(request: Request, call_next):
 
 @app.get("/api/health")
 def health():
-    return {"ok": True}
+    return {"ok": True, "version": os.environ.get("RENDER_GIT_COMMIT", "dev")[:7]}
 
 
 if FRONTEND_DIST.is_dir():
@@ -57,5 +61,5 @@ if FRONTEND_DIST.is_dir():
             raise HTTPException(404, "Not found")
         candidate = (FRONTEND_DIST / path).resolve()
         if path and candidate.is_file() and FRONTEND_DIST.resolve() in candidate.parents:
-            return FileResponse(candidate)
-        return FileResponse(FRONTEND_DIST / "index.html")
+            return FileResponse(candidate, headers=NO_CACHE)
+        return FileResponse(FRONTEND_DIST / "index.html", headers=NO_CACHE)
