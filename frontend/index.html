@@ -88,6 +88,15 @@ body.contrast{--cream:#151318;--cream-2:#1e1a22;--line:#4a3f52;--brown:#fff6e6;-
   background:var(--cream);display:grid;place-items:center;cursor:pointer;font-size:1.15rem;color:var(--brown);}
 #gearbtn{right:14px;top:74px;} #homebtn{left:14px;top:74px;} #profbtn{right:14px;top:126px;} #profbtn svg{width:24px;height:24px;}
 select.vinput{appearance:none;-webkit-appearance:none;cursor:pointer;text-align-last:center;font-size:1.1rem;}
+.spinner{display:flex;flex-direction:column;gap:.35rem;}
+.arrowbtn{width:48px;height:36px;border:none;border-radius:14px;background:var(--cream-2);color:var(--brown);display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;}
+.arrowbtn svg{width:22px;height:22px;}
+.arrowbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line);}
+#homebtn.exitbtn{width:auto;padding:0 .95rem 0 .8rem;display:flex;align-items:center;gap:.4rem;font-family:inherit;font-weight:900;font-size:.95rem;}
+#homebtn.exitbtn svg{width:15px;height:15px;}
+.fusebox{margin:.5rem auto;max-width:640px;}
+.fusebox.dark{background:#000;border-radius:18px;padding:.4rem;}
+.fusesvg{display:block;width:100%;max-height:34vh;}
 .autherr{min-height:1.3rem;margin:.2rem 0;text-align:center;font-weight:800;color:var(--red-d);font-size:.9rem;}
 #hudmsg{position:absolute;left:50%;top:74px;transform:translateX(-50%);background:var(--cream);
   border-radius:18px;padding:.4rem 1rem;font-weight:800;font-size:.88rem;text-align:center;}
@@ -226,7 +235,7 @@ body.contrast .notice{background:#2a2410;}
 }
 
 /* sheets */
-#sheet{position:fixed;inset:0;z-index:50;background:rgba(60,35,15,.45);display:grid;place-items:center;padding:1rem;}
+#sheet,#exitdlg{position:fixed;inset:0;z-index:50;background:rgba(60,35,15,.45);display:grid;place-items:center;padding:1rem;}
 .sheetbox{background:var(--cream);border-radius:28px;width:min(680px,96vw);max-height:92vh;overflow:auto;
   padding:1.15rem 1.25rem;box-shadow:0 20px 50px rgba(60,35,15,.4);animation:cardin .3s ease;}
 .tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:.55rem 0 .85rem;}
@@ -544,7 +553,6 @@ ART.wordCard = `<svg viewBox="0 0 60 60"><rect x="4" y="12" width="52" height="3
   <rect x="12" y="34" width="24" height="6" rx="3" fill="#c8a882"/>
   <path d="M46 6 l3 6 l6 3 l-6 3 l-3 6 l-3 -6 l-6 -3 l6 -3 Z" fill="#ffc94d"/></svg>`;
 
-const FLYER_ART = { drop:ART.drop, hawk:ART.hawk, gem:ART.gem };
 
 /* ==========================================================================
    THE WORLD MAP
@@ -916,7 +924,7 @@ const DEFAULT_STATE = {
   gradeProgress: {}, gems: 0, owned: [], equipped: { hat:null, item:null },
   streak: { count:0, last:null, freezes:2 },
   log: [],
-  settings: { fs:1, contrast:false, reduceMotion:false, sessionCap:15, headReminder:true }
+  settings: { fs:1, contrast:false, reduceMotion:false, sessionCap:15 }
 };
 function normalizeState(raw){
   const s = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), raw || {});
@@ -938,6 +946,9 @@ let SESSION = { start: Date.now(), capShown:false };
 const BUILD = '__BUILD__';
 const BUILD_LABEL = BUILD.startsWith('__') ? 'dev' : BUILD;
 const TOKEN_KEY = 'mvq.token';
+const EXIT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>`;
+const ARROW_UP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>`;
+const ARROW_DOWN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>`;
 const PROFILE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.5 8.5-7.5s8.5 2.8 8.5 7.5z"/></svg>`;
 let TOKEN = store.read(TOKEN_KEY, null);
 let USER = null;
@@ -1006,7 +1017,6 @@ const GRADE_TITLES = [
   'Grade 10 · The Hidden Vale', 'Grade 11 · Old Caravan Road', 'Grade 12 · The Final Horizon'
 ];
 const GRADE_SCENES = ['adv1', 'adv2', 'adv3'];
-const GRADE_FOCUS_ART = ['drop', 'hawk', 'gem'];
 const GRADE_WORDS = [
   ['sun','dig','paw','mud','cup','wet','dry','hop','sip','pot'],
   ['dust','wing','rock','sand','cave','hill','wind','palm','glow','path','claw','nest'],
@@ -1164,7 +1174,7 @@ function gradeInfo(grade){
   const i = grade - 1;
   return {
     grade, title: GRADE_TITLES[i], scene: GRADE_SCENES[i % 3],
-    focusArt: GRADE_FOCUS_ART[i % 3], words: GRADE_WORDS[i],
+    words: GRADE_WORDS[i],
     passage: GRADE_INTROS[i].join(' ')
   };
 }
@@ -1191,11 +1201,9 @@ function memConfig(grade){
   };
 }
 function eyeConfig(grade){
-  const gi = gradeInfo(grade);
   return {
-    label: 'Near & Far', prompt: 'Watch it come close, then drift far away.',
-    rounds: gLerp(grade, 4, 9), cycleMs: gLerp(grade, 3400, 1700), window: gLerp(grade, 900, 380),
-    scaleMin: gLerpf(grade, 0.55, 0.4), scaleMax: gLerpf(grade, 1.5, 2.0), art: gi.focusArt, pass: 0.5
+    rounds: gLerp(grade, 4, 8), gap: gLerp(grade, 14, 70), disparity: gLerp(grade, 6, 34), pass: 0.5,
+    chars: 'ABDEFHKMNPRTUVWY2345789'.split('')
   };
 }
 const flashMemoryRounds = grade => gLerp(grade, 5, 8);
@@ -1264,7 +1272,7 @@ function renderHud(){
       ${ART.coin}<b>${S.gems}</b>${ART.chest}</div>
     <button id="gearbtn" class="cornerbtn shadowbox" title="For grown-ups" onclick="openSheet('parent')">⚙️</button>
     <button id="profbtn" class="cornerbtn shadowbox" title="My profile" onclick="openSheet('profile')">${PROFILE_ICON}</button>
-    ${RUN ? `<button id="homebtn" class="cornerbtn shadowbox" title="Back to the map" onclick="confirmQuit()">🗺️</button>` : ''}
+    ${RUN ? `<button id="homebtn" class="cornerbtn exitbtn shadowbox" title="Exit" onclick="confirmQuit()">${EXIT_ICON}Exit</button>` : ''}
     ${VIEW.msg ? `<div id="hudmsg" class="shadowbox">${VIEW.msg}</div>` : ''}`;
 }
 
@@ -1303,7 +1311,7 @@ function applySettings(){
    MAP MODE
    ========================================================================== */
 function toMap(){
-  clearTimers(); RUN = null; VIEW.mode = 'map'; VIEW.msg = null;
+  closeExit(); clearTimers(); RUN = null; VIEW.mode = 'map'; VIEW.msg = null;
   night(false); $('#fx').className = ''; $('#fx').innerHTML = '';
   renderHud();
   if(CUR_SCENE === 'map'){ renderWorld(); mapCard(); }
@@ -1355,7 +1363,7 @@ function moduleSelectCard(grade){
       ${btn('read', `startReading(${grade})`)}
       ${btn('mem',  `openVisualMemoryMenu(${grade})`)}
       ${btn('scan', `openScanningMenu(${grade})`)}
-      ${btn('eye',  `startEyeTherapy(${grade})`)}
+      ${btn('eye',  `openEyeMenu(${grade})`)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="toMap()">Back to the map</button>`,
     'dock');
@@ -1386,7 +1394,7 @@ function runModule(grade, moduleKey, opts, playFn){
     renderHud();
     VIEW.mode = 'intro';
     card(`<div class="ctitle">${meta.name}</div>
-      <div style="width:34%;margin:.3rem auto">${opts.art || ''}</div>
+      <div style="width:${opts.artWidth || '34%'};margin:.3rem auto">${opts.art || ''}</div>
       <div class="chead">${opts.headline || meta.name}</div>
       <div class="center cmuted">${meta.clinical}</div>
       <div class="center cmuted" style="margin:.45rem 0 .7rem"><b>${opts.params || ''}</b></div>
@@ -1481,17 +1489,23 @@ function revealChunksInto(elId, text, wpm, chunkSize, onDone){
   tick();
 }
 
+/* a dialog laid over the exercise; "Keep playing" just closes it */
 function confirmQuit(){
-  clearTimers(); night(false);
-  $('#fx').className = ''; $('#fx').innerHTML = '';
-  VIEW.msg = null; renderHud();
-  card(`<div class="ctitle">Leave the adventure?</div>
-    <div class="chead">Come back any time</div>
-    <p class="cmuted center">This level won’t be saved, but nothing is lost — you can try again whenever you like.</p>
-    <div class="stack"><button class="abtn o" onclick="toMap()">Back to the map</button>
-    <button class="abtn ghost sm" onclick="resumeCard()">Keep playing</button></div>`, 'focus');
+  if(document.getElementById('exitdlg')) return;
+  const d = document.createElement('div');
+  d.id = 'exitdlg';
+  d.onclick = e => { if(e.target === d) closeExit(); };
+  d.innerHTML = `<div class="sheetbox" style="max-width:420px">
+    <div class="ctitle">Exit</div>
+    <div class="chead">Leave this exercise?</div>
+    <p class="cmuted center">Your progress in this exercise won’t be saved, but you can come back and play any time.</p>
+    <div class="stack">
+      <button class="abtn" onclick="closeExit()">Keep playing</button>
+      <button class="abtn o" onclick="closeExit(); toMap()">Exit to the map</button>
+      <button class="abtn ghost sm" onclick="closeExit(); logout()">Log out</button></div></div>`;
+  document.body.appendChild(d);
 }
-function resumeCard(){ if(RUN && RUN.retryFn) RUN.retryFn(); else toMap(); }
+function closeExit(){ const d = document.getElementById('exitdlg'); if(d) d.remove(); }
 
 const BTN_COLOURS = ['', 'o', 'b', 'p', 'r'];
 
@@ -1548,15 +1562,6 @@ function startReading(grade){
 }
 
 /* -------------------------------------------------------- EYE THERAPY --- */
-function startEyeTherapy(grade){
-  const c = eyeConfig(grade);
-  runModule(grade, 'eye', {
-    art: FLYER_ART[c.art], headline: 'Near & Far',
-    params: `${c.rounds} rounds · near &amp; far · ${c.window}ms window`,
-    prompt: 'Watch it come close, then drift far away.',
-    extraHtml: `<div class="notice"><b>Pilot exercise.</b> A size-based near/far simulation of convergence and divergence, which needs a pediatric optometrist’s design and review before release.</div>`
-  }, () => exFocus(grade));
-}
 
 /* ------------------------------------------------------- VISUAL MEMORY --- */
 function openVisualMemoryMenu(grade){
@@ -1621,6 +1626,101 @@ function startCardMatch(grade){
     params: `${c.pairs} pairs${c.time ? ' · ' + c.time + 's limit' : ''}`,
     prompt: 'Find the matching pairs.'
   }, () => exMem(grade));
+}
+
+/* ------------------------------------------------------- EYE THERAPY --- */
+function openEyeMenu(grade){
+  RUN = { grade, moduleKey:'eye', retryFn:null };
+  VIEW.mode = 'intro'; VIEW.msg = null; renderHud();
+  card(`<div class="ctitle">Eye Therapy</div>
+    <div class="chead">Choose a test</div>
+    <div class="stack">
+      <button class="abtn" onclick="startFusion(${grade},'convergence')">👀 Convergence</button>
+      <button class="abtn o" onclick="startFusion(${grade},'divergence')">🕶️ Divergence (red/blue glasses)</button>
+    </div>
+    <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
+}
+
+/* Each eye gets its own picture holding half of the character. When the two pictures fuse
+   into one, the halves line up and the whole letter or number appears in the middle.
+   convergence: two side-by-side circles, no glasses (cross the eyes to join them).
+   divergence: red and cyan circles pulled apart; red/cyan glasses give each eye its own picture. */
+let FUSE_UID = 0;
+function fusionSVG(kind, ch, p){
+  const R = 90, pad = 24, cy = 112, H = 224, fs = 124, id = 'fz' + (++FUSE_UID);
+  const glyph = (cx, side, color) => `<clipPath id="${id}${side}"><rect x="${side === 'left' ? cx - R : cx}" y="0" width="${R}" height="${H}"/></clipPath>
+    <text x="${cx}" y="${cy + fs * 0.36}" text-anchor="middle" font-size="${fs}" font-weight="900" font-family="Arial Black,Arial,Helvetica,sans-serif" fill="${color}" clip-path="url(#${id}${side})">${esc(ch)}</text>`;
+  const ticks = (cx, color) => `<path d="M${cx} ${cy - R + 10} v16 M${cx} ${cy + R - 10} v-16" stroke="${color}" stroke-width="5" stroke-linecap="round"/>`;
+  if(kind === 'convergence'){
+    const cxL = pad + R, cxR = cxL + 2 * R + p.gap, W = cxR + R + pad, mid = (cxL + cxR) / 2, ink = '#3b2410', line = '#8a6238';
+    const circle = cx => `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fff" stroke="${line}" stroke-width="5"/>`;
+    return `<svg class="fusesvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Two circles to fuse">
+      ${circle(cxL)}${ticks(cxL, line)}${glyph(cxL, 'left', ink)}
+      ${circle(cxR)}${ticks(cxR, line)}${glyph(cxR, 'right', ink)}
+      <circle cx="${mid}" cy="${cy}" r="7" fill="#f0a038"/></svg>`;
+  }
+  const W = 2 * (R + pad) + 80, cx = W / 2, red = '#ff2a2a', cyan = '#00e5ff';
+  const eye = (shift, side, color) => `<g transform="translate(${shift} 0)" style="mix-blend-mode:screen">
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${color}" stroke-width="5"/>${ticks(cx, color)}${glyph(cx, side, color)}
+    <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"/></g>`;
+  return `<svg class="fusesvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Red and blue circles to fuse">
+    ${eye(-p.disparity / 2, 'left', red)}${eye(p.disparity / 2, 'right', cyan)}</svg>`;
+}
+
+function startFusion(grade, kind){
+  const c = eyeConfig(grade), conv = kind === 'convergence';
+  runModule(grade, 'eye', {
+    art: fusionSVG(kind, 'A', { gap:c.gap, disparity:c.disparity }), artWidth: conv ? '80%' : '48%',
+    headline: conv ? 'Convergence' : 'Divergence',
+    params: `${c.rounds} rounds · ${conv ? 'two circles, no glasses' : 'red/blue glasses'}`,
+    prompt: conv ? 'Look at the middle dot and let the two circles join.' : 'Put on your red/blue glasses and let the circles join.',
+    extraHtml: (conv ? '' : `<div class="hintbar">🕶️ <div><b>You need red/blue (red-cyan) 3D glasses.</b> Red lens over the left eye.</div></div>`) +
+      `<div class="notice"><b>Pilot exercise.</b> Stop and rest if your eyes feel sore or you get a headache. The settings need a pediatric optometrist’s review before release.</div>`
+  }, () => playFusion(grade, kind));
+}
+
+function playFusion(grade, kind){
+  const c = eyeConfig(grade), conv = kind === 'convergence', name = conv ? 'Convergence' : 'Divergence';
+  let round = 0, correct = 0, last = '', times = [];
+  const tip = conv
+    ? 'Look at the orange dot in the middle. Slowly cross your eyes, like looking at the tip of your nose, until the two circles slide together into one. Type the letter or number you see in the middle circle.'
+    : 'Wear your red/blue glasses, red lens over your left eye. Look at the middle and relax your eyes, like gazing far away, until the red and blue circles join into one. Type the letter or number you see.';
+  const reminder = conv ? 'Look at the dot and let the circles join.' : 'Relax your eyes and let the circles join.';
+
+  function next(){
+    if(round >= c.rounds){
+      const score = correct / c.rounds;
+      const avg = times.length ? (times.reduce((x, y) => x + y, 0) / times.length / 1000).toFixed(1) : '0';
+      finishModule(grade, 'eye', score, score >= c.pass, `${correct} of ${c.rounds} correct · ${avg}s average`);
+      return;
+    }
+    let ch; do{ ch = pick(c.chars); }while(ch === last); last = ch;
+    card(`<div class="ctitle">${name}</div>
+      <div class="center cmuted" style="font-size:.92rem">Round ${round + 1} of ${c.rounds}</div>
+      <p class="cmuted center" style="margin:.3rem 0;font-size:.9rem">${round === 0 ? tip : reminder}</p>
+      <div class="fusebox ${conv ? '' : 'dark'}">${fusionSVG(kind, ch, { gap:c.gap, disparity:c.disparity })}</div>
+      <div class="chead" style="margin:.4rem 0 0">What do you see?</div>
+      <input type="text" id="fuInput" class="vinput" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+      <button class="abtn" onclick="__fuSubmit()">OK</button>
+      <button class="abtn ghost sm" style="margin-top:.4rem" onclick="__fuSkip()">I can’t see it yet</button>`, 'focus');
+    const inp = document.getElementById('fuInput'), t0 = performance.now();
+    if(inp){ inp.focus(); inp.onkeydown = e => { if(e.key === 'Enter') window.__fuSubmit(); }; }
+    const settle = (ok, typed) => {
+      window.__fuSubmit = () => {}; window.__fuSkip = () => {};
+      const el = document.getElementById('fuInput');
+      el.disabled = true; el.classList.add(ok ? 'right' : 'wrong');
+      if(!ok) el.value = ch;
+      if(ok){ correct++; times.push(performance.now() - t0); }
+      document.querySelectorAll('#cards button.abtn').forEach(b => b.disabled = true);
+      later(() => { round++; next(); }, ok ? 700 : 1300);
+    };
+    window.__fuSubmit = () => {
+      const v = (inp.value || '').trim().toUpperCase();
+      if(v) settle(v === ch);
+    };
+    window.__fuSkip = () => settle(false);
+  }
+  next();
 }
 
 /* ------------------------------------------------------------ SCANNING --- */
@@ -1837,10 +1937,12 @@ function exRead(grade){
       <div class="chead">Nice reading!</div>
       <p class="cmuted center">You read that at about <b>${measuredWpm} words per minute</b>.</p>
       <p class="cmuted center">Now read it again — the words will appear at your practice pace. Want to go faster?</p>
-      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin:.7rem 0">
-        <button class="abtn ghost sm" style="width:auto;padding:.5rem 1rem" onclick="__speedStep(-10)">−</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:1.1rem;margin:.7rem 0">
         <div class="chead" style="margin:0" id="speedVal">${practiceWpm} wpm</div>
-        <button class="abtn ghost sm" style="width:auto;padding:.5rem 1rem" onclick="__speedStep(10)">+</button>
+        <div class="spinner">
+          <button class="arrowbtn" aria-label="Faster" title="Faster" onpointerdown="__speedHold(10)" onpointerup="__speedStop()" onpointerleave="__speedStop()" onpointercancel="__speedStop()" onclick="if(event.detail===0)__speedStep(10)">${ARROW_UP}</button>
+          <button class="arrowbtn" aria-label="Slower" title="Slower" onpointerdown="__speedHold(-10)" onpointerup="__speedStop()" onpointerleave="__speedStop()" onpointercancel="__speedStop()" onclick="if(event.detail===0)__speedStep(-10)">${ARROW_DOWN}</button>
+        </div>
       </div>
       <button class="abtn" onclick="__startSecondRead()">Read it again</button>`, 'focus');
     window.__speedStep = d => {
@@ -1848,8 +1950,14 @@ function exRead(grade){
       const el = document.getElementById('speedVal');
       if(el) el.textContent = practiceWpm + ' wpm';
     };
+    let speedTimer = null;
+    window.__speedStop = () => { clearTimeout(speedTimer); clearInterval(speedTimer); speedTimer = null; };
+    window.__speedHold = d => {
+      window.__speedStop(); window.__speedStep(d);
+      speedTimer = setTimeout(() => { speedTimer = setInterval(() => window.__speedStep(d), 90); }, 350);
+    };
     window.__startSecondRead = () => {
-      window.__speedStep = () => {}; window.__startSecondRead = () => {};
+      window.__speedStop(); window.__speedStep = () => {}; window.__speedHold = () => {}; window.__startSecondRead = () => {};
       startSecondRead();
     };
   }
@@ -1889,71 +1997,6 @@ function exRead(grade){
   }
 
   startPassage();
-}
-
-/* --------------------------------- NEAR & FAR (convergence/divergence, in the card) --- */
-function exFocus(grade){
-  const c = eyeConfig(grade);
-  const artSrc = FLYER_ART[c.art] || ART.drop;
-  let round = 0, hits = 0, rts = [];
-
-  function startRound(){
-    if(round >= c.rounds){
-      const score = hits / c.rounds;
-      const avgRt = rts.length ? Math.round(rts.reduce((x,y) => x+y, 0)/rts.length) : 0;
-      finishModule(grade, 'eye', score, score >= c.pass, `${hits} of ${c.rounds} caught · ${avgRt}ms average`);
-      return;
-    }
-    const phase = round % 2 === 0 ? 'near' : 'far';
-    const startScale = phase === 'near' ? c.scaleMin : c.scaleMax;
-    const peakScale  = phase === 'near' ? c.scaleMax : c.scaleMin;
-    const half = c.cycleMs / 2;
-    let tapped = false, windowOpen = false;
-    const t0 = performance.now();
-
-    const hint = phase === 'near'
-      ? 'Watch it come closer and closer.'
-      : 'Watch it drift farther and farther away.';
-    const label = phase === 'near' ? 'Tap when it’s CLOSEST!' : 'Tap when it’s FARTHEST!';
-
-    card(`<div class="ctitle">${c.label}</div>
-      <div class="center cmuted" style="font-size:.92rem">Round ${round+1} of ${c.rounds}</div>
-      <p class="cbody" style="font-size:1rem;margin:.3rem 0">${hint}<br><span class="cmuted" style="font-size:.85rem">Keep it looking like one shape, not double.</span></p>
-      <div class="flashbox" style="min-height:170px">
-        <div id="focusObj" style="display:inline-block;width:84px;transform:scale(${startScale})">${artSrc}</div>
-      </div>
-      <div class="chead" style="margin:.2rem 0 .5rem">${label}</div>
-      <button class="abtn ghost" id="focusBtn" disabled onclick="__focusTap()">Tap now!</button>`, 'focus');
-
-    const obj = $('#focusObj'), btn = $('#focusBtn');
-
-    window.__focusTap = () => {
-      if(!windowOpen || tapped) return;
-      tapped = true; hits++;
-      rts.push(Math.round(Math.abs(performance.now() - t0 - half)));
-      if(btn){ btn.textContent = 'Got it! ✅'; btn.classList.remove('ghost'); btn.classList.add('right'); }
-    };
-
-    function loop(now){
-      const t = now - t0;
-      const scale = t <= half
-        ? startScale + (peakScale - startScale) * Math.sin((t/half) * (Math.PI/2))
-        : peakScale + (startScale - peakScale) * Math.sin(((t-half)/half) * (Math.PI/2));
-      if(obj) obj.style.transform = `scale(${scale.toFixed(3)})`;
-
-      if(!tapped){
-        const within = Math.abs(t - half) <= c.window/2;
-        if(within !== windowOpen){
-          windowOpen = within;
-          if(btn){ btn.disabled = !windowOpen; btn.classList.toggle('ghost', !windowOpen); }
-        }
-      }
-      if(t < c.cycleMs){ RAF = requestAnimationFrame(loop); }
-      else { RAF = null; round++; later(startRound, 320); }
-    }
-    RAF = requestAnimationFrame(loop);
-  }
-  startRound();
 }
 
 /* ------------------------------------- MEERKAT MEMORY (in the card) --- */
@@ -2130,7 +2173,6 @@ function tabSettings(){
       <div style="display:flex;gap:.4rem"><button class="tab" onclick="fontStep(-1)">A−</button><button class="tab" onclick="fontStep(1)">A+</button></div></div>
     ${sw('High contrast','contrast','Darker cards and stronger text contrast')}
     ${sw('Reduce motion','reduceMotion','Turns off bobbing and pop animations')}
-    ${sw('Head-still reminder','headReminder','Shows the reminder during Eye Hop')}
     <h2 class="sh" style="margin-top:1rem">Session limits</h2>
     <p class="cmuted" style="margin-top:0">Break reminder after a set amount of screen time. An eye-health app should cap sessions, not reward long ones.</p>
     <div style="display:flex;gap:.4rem;flex-wrap:wrap">
@@ -2289,6 +2331,7 @@ function enterGame(sess){
 }
 
 function signedOut(){
+  closeExit();
   clearTimeout(saveTimer); saveTimer = null;
   TOKEN = null; USER = null; store.remove(TOKEN_KEY);
   S = normalizeState(null); RUN = null; clearTimers(); night(false); clearCard();
