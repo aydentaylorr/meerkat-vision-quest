@@ -1,0 +1,11 @@
+/* Adjustments for narrow (phone) screens. */
+@media (max-width:700px){
+  #cards.focus{padding:.6rem;}
+  .panel.dock{padding:1.2rem 1.2rem calc(1.3rem + env(safe-area-inset-bottom));border-radius:28px 28px 0 0;}
+  .panel.focus{padding:1.3rem 1.2rem;border-radius:28px;}
+  .chead{font-size:1.6rem;}
+  .cbig{font-size:3.1rem;}
+  .abtn{font-size:1.15rem;padding:.78rem .9rem;}
+  #streak{padding:.4rem .7rem .4rem .5rem;}
+  #streak .n{font-size:.85rem;}
+}

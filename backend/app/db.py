@@ -1,9 +1,9 @@
 """Database access. SQLite for local development; Postgres when DATABASE_URL is set."""
 
 import sqlite3
-from collections.abc import Iterator
-from datetime import datetime, timezone
-from typing import Any, Mapping
+from collections.abc import Iterator, Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 from .config import DATABASE_URL, DB_PATH
 
@@ -33,7 +33,7 @@ USING_POSTGRES = bool(DATABASE_URL)
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Conn:

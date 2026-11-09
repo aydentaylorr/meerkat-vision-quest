@@ -1,0 +1,20 @@
+/* Exercise bits: flash box, memory boards and the two-circle fusion tests. */
+.fusebox{margin:.5rem auto;max-width:640px;}
+.fusebox.dark{background:#000;border-radius:18px;padding:.4rem;}
+.fusesvg{display:block;width:100%;max-height:34vh;}
+
+.flashbox{min-height:150px;display:grid;place-items:center;}
+
+.mgrid{display:grid;gap:.5rem;margin-top:.5rem;}
+.mcard{aspect-ratio:1/1;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;cursor:pointer;
+  background:linear-gradient(180deg,#e9a95c,#dd914a);box-shadow:0 4px 0 #b9762f;}
+.mcard.up{background:linear-gradient(180deg,#fffaf0,#fff0d6);box-shadow:0 4px 0 var(--line);}
+.mcard.matched{background:linear-gradient(180deg,#9be07f,#7ac943);box-shadow:0 4px 0 var(--green-d);}
+.mmgrid{display:grid;gap:.6rem;margin:.6rem auto 0;width:100%;}
+.mmcard{aspect-ratio:1/1;border-radius:18px;display:grid;place-items:center;cursor:pointer;user-select:none;
+  font-size:var(--mfs,3rem);line-height:1;color:#fff;
+  background:linear-gradient(180deg,#e9a95c,#dd914a);box-shadow:0 5px 0 #b9762f;}
+.mmcard .back{font-size:.62em;opacity:.55;}
+.mmcard.up{background:linear-gradient(180deg,#fffaf0,#fff0d6);box-shadow:0 5px 0 var(--line);animation:mflip .22s ease;}
+.mmcard.matched{background:linear-gradient(180deg,#9be07f,#7ac943);box-shadow:0 5px 0 var(--green-d);cursor:default;animation:mflip .22s ease;}
+@keyframes mflip{from{transform:scale(.86)}to{transform:scale(1)}}

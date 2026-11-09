@@ -1,3 +1,5 @@
+"""Request and response shapes for the API."""
+
 import re
 from typing import Any
 

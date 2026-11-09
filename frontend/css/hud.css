@@ -1,0 +1,25 @@
+/* The always-visible bar: streak, progress, gems and the corner buttons. */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:20;}
+#hud > *{pointer-events:auto;}
+.shadowbox{box-shadow:0 5px 0 rgba(150,100,50,.22),0 10px 22px rgba(120,70,20,.16);}
+#streak{position:absolute;left:0;top:14px;display:flex;align-items:center;gap:.5rem;
+  background:var(--cream);border-radius:0 22px 22px 0;padding:.5rem 1rem .5rem .7rem;}
+#streak .n{line-height:1.05;font-weight:900;font-size:1rem;}
+#streak .n small{display:block;font-size:.68rem;font-weight:700;color:var(--brown-soft);letter-spacing:.02em;}
+#rings{position:absolute;left:50%;top:14px;transform:translateX(-50%);
+  display:flex;gap:.5rem;background:var(--cream);border-radius:22px;padding:.45rem .75rem;}
+#rings svg{width:38px;height:38px;display:block;}
+#topright{position:absolute;right:0;top:14px;display:flex;align-items:center;gap:.55rem;
+  background:var(--cream);border-radius:22px 0 0 22px;padding:.45rem .7rem .45rem 1rem;cursor:pointer;}
+#topright svg.coin{width:26px;height:26px;}
+#topright svg.chest{width:36px;height:36px;}
+#topright b{font-size:.9rem;}
+.cornerbtn{position:absolute;width:44px;height:44px;border:none;border-radius:16px;
+  background:var(--cream);display:grid;place-items:center;cursor:pointer;font-size:1.15rem;color:var(--brown);}
+#gearbtn{right:14px;top:74px;} #homebtn{left:14px;top:74px;} #profbtn{right:14px;top:126px;} #profbtn svg{width:24px;height:24px;}
+
+#homebtn.exitbtn{width:auto;padding:0 .95rem 0 .8rem;display:flex;align-items:center;gap:.4rem;font-family:inherit;font-weight:900;font-size:.95rem;}
+#homebtn.exitbtn svg{width:15px;height:15px;}
+
+#hudmsg{position:absolute;left:50%;top:74px;transform:translateX(-50%);background:var(--cream);
+  border-radius:18px;padding:.4rem 1rem;font-weight:800;font-size:.88rem;text-align:center;}

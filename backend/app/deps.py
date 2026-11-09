@@ -1,4 +1,6 @@
-from datetime import datetime, timezone
+"""Shared request dependencies (who is the signed-in user)."""
+
+from datetime import UTC, datetime
 
 from fastapi import Depends, Header, HTTPException
 
@@ -17,6 +19,6 @@ def current_user(
            WHERE s.token_hash = ?""",
         (hash_token(x_session_token),),
     ).fetchone()
-    if row is None or datetime.fromisoformat(row["expires_at"]) < datetime.now(timezone.utc):
+    if row is None or datetime.fromisoformat(row["expires_at"]) < datetime.now(UTC):
         raise HTTPException(401, "Session expired")
     return row

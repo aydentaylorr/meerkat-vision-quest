@@ -1,13 +1,12 @@
-node_modules
-dist
-*.log
-.DS_Store
-.vscode/*
-!.vscode/extensions.json
-.idea
-
-# backend
-backend/.venv
-backend/data/
+# Python
 __pycache__/
 *.pyc
+backend/.venv/
+backend/data/
+.ruff_cache/
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store

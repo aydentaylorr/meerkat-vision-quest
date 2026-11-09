@@ -1,5 +1,7 @@
+"""Accounts: register, log in, log out, and the signed-in profile."""
+
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
@@ -36,8 +38,8 @@ def _load_state(db: Conn, user_id: int) -> dict | None:
 
 def _open_session(db: Conn, user: Row) -> SessionOut:
     token, token_hash = new_token()
-    expires = datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)
-    db.execute("DELETE FROM sessions WHERE expires_at < ?", (datetime.now(timezone.utc).isoformat(),))
+    expires = datetime.now(UTC) + timedelta(days=SESSION_DAYS)
+    db.execute("DELETE FROM sessions WHERE expires_at < ?", (datetime.now(UTC).isoformat(),))
     db.execute(
         "INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)",
         (token_hash, user["id"], expires.isoformat()),
@@ -49,11 +51,12 @@ def _open_session(db: Conn, user: Row) -> SessionOut:
 def register(body: RegisterIn, db: Conn = Depends(get_db)):
     try:
         user = db.execute(
-            "INSERT INTO users (username, start_grade, password_hash, created_at) VALUES (?, ?, ?, ?) RETURNING *",
+            """INSERT INTO users (username, start_grade, password_hash, created_at)
+               VALUES (?, ?, ?, ?) RETURNING *""",
             (body.username, body.start_grade, hash_password(body.password), utc_now()),
         ).fetchone()
     except IntegrityErrors:
-        raise HTTPException(409, "That username is already taken")
+        raise HTTPException(409, "That username is already taken") from None
     return _open_session(db, user)
 
 
@@ -87,7 +90,9 @@ def me(
     user: Row = Depends(current_user),
     db: Conn = Depends(get_db),
 ):
-    return SessionOut(token=x_session_token, user=_user_out(user), state=_load_state(db, user["id"]))
+    return SessionOut(
+        token=x_session_token, user=_user_out(user), state=_load_state(db, user["id"])
+    )
 
 
 @router.patch("/me", response_model=UserOut)

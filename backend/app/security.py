@@ -1,3 +1,5 @@
+"""Password hashing, session tokens and login-attempt throttling."""
+
 import hashlib
 import hmac
 import os

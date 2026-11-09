@@ -1,3 +1,5 @@
+"""Saving a player’s game progress."""
+
 import json
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -21,7 +23,8 @@ def save_progress(
         raise HTTPException(413, "Progress data is too large")
     db.execute(
         """INSERT INTO progress (user_id, state_json, updated_at) VALUES (?, ?, ?)
-           ON CONFLICT(user_id) DO UPDATE SET state_json = excluded.state_json, updated_at = excluded.updated_at""",
+           ON CONFLICT(user_id) DO UPDATE
+           SET state_json = excluded.state_json, updated_at = excluded.updated_at""",
         (user["id"], payload, utc_now()),
     )
     return {"ok": True}

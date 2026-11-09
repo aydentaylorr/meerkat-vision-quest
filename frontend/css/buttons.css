@@ -1,0 +1,24 @@
+/* Big game buttons and the small stepper arrows. */
+.spinner{display:flex;flex-direction:column;gap:.35rem;}
+.arrowbtn{width:48px;height:36px;border:none;border-radius:14px;background:var(--cream-2);color:var(--brown);display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;}
+.arrowbtn svg{width:22px;height:22px;}
+.arrowbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line);}
+
+.abtn{
+  display:block;width:100%;max-width:460px;margin-left:auto;margin-right:auto;
+  border:none;font-family:inherit;font-weight:900;
+  font-size:1.35rem;letter-spacing:.06em;color:#fff;text-transform:uppercase;
+  padding:.9rem 1rem;border-radius:22px;cursor:pointer;
+  background:var(--green);box-shadow:0 6px 0 var(--green-d);
+  transition:transform .06s,box-shadow .06s,filter .12s;
+}
+.abtn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--green-d);}
+.abtn.o{background:var(--orange);box-shadow:0 5px 0 var(--orange-d);}
+.abtn.b{background:var(--blue);box-shadow:0 5px 0 var(--blue-d);}
+.abtn.p{background:var(--purple);box-shadow:0 5px 0 var(--purple-d);}
+.abtn.r{background:var(--red);box-shadow:0 5px 0 var(--red-d);}
+.abtn.ghost{background:var(--cream-2);color:var(--brown);box-shadow:0 5px 0 var(--line);}
+.abtn.sm{font-size:1.02rem;padding:.62rem .9rem;letter-spacing:.01em;text-transform:none;}
+.abtn.right{background:var(--green)!important;box-shadow:0 5px 0 var(--green-d)!important;}
+.abtn.wrong{background:var(--red)!important;box-shadow:0 5px 0 var(--red-d)!important;}
+.abtn:disabled{filter:saturate(.45) opacity(.65);cursor:default;}

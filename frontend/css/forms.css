@@ -1,0 +1,12 @@
+/* Text inputs, dropdowns and form messages. */
+.vinput{display:block;width:100%;max-width:280px;margin:.7rem auto;padding:.7rem 1rem;
+  font-family:inherit;font-size:1.4rem;font-weight:800;text-align:center;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--brown);background:var(--cream);
+  border:3px solid var(--line);border-radius:16px;}
+.vinput:focus{outline:none;border-color:var(--orange);}
+.vinput:disabled{opacity:.7;}
+.vinput.right{border-color:var(--green);background:#eaf9de;}
+.vinput.wrong{border-color:var(--red);background:#fdeceb;}
+select.vinput{appearance:none;-webkit-appearance:none;cursor:pointer;text-align-last:center;font-size:1.1rem;}
+
+.autherr{min-height:1.3rem;margin:.2rem 0;text-align:center;font-weight:800;color:var(--red-d);font-size:.9rem;}

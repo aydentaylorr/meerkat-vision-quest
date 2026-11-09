@@ -1,50 +1,84 @@
 # Meerkat Vision Quest
 
-```
-backend/    Python (FastAPI + SQLite) API: accounts, login, saved progress
-frontend/   The game (index.html, Vite dev server)
-```
+A story-driven vision and reading practice game for children. Nomi the meerkat travels through
+12 grades; each grade has four modules (Reading, Visual Memory, Scanning, Eye Therapy). Players
+sign in, and their progress, streak and rewards are saved to their account.
 
-## Run it (development)
-
-First time only:
+## Project layout
 
 ```
-python3 -m venv backend/.venv
-backend/.venv/bin/pip install -r backend/requirements.txt
-npm --prefix frontend install
+backend/                 Python API (FastAPI) that also serves the game
+  app/
+    main.py              builds the app and registers routes
+    config.py            settings from environment variables
+    db.py                database access (SQLite locally, Postgres when DATABASE_URL is set)
+    security.py          password hashing, session tokens, login throttling
+    schemas.py           request/response shapes
+    deps.py              shared request dependencies
+    middleware.py        optional preview password, no-index header
+    frontend.py          serves the static game files
+    routes/              auth.py (accounts), progress.py (saving), health.py
+  requirements.txt
+frontend/                the game: plain HTML, CSS and JavaScript (ES modules), no build step
+  index.html             page skeleton
+  css/                   styles, split by area (base, world, hud, cards, buttons, ...)
+  js/
+    main.js              entry point
+    handlers.js          functions the HTML calls from onclick attributes
+    core/                shared plumbing: state, API calls, timers, progress rules, utilities
+    data/                content: stories, word lists, grades, difficulty, rewards
+    art/                 the hand-drawn SVG world, Nomi and icons
+    ui/                  screens: map, HUD, cards, sheets, sign-in, profile, grown-ups area
+    modules/             the four game modules and the runner that drives them
+  assets/                favicon
+Dockerfile               container for deployment
+render.yaml              Render deployment blueprint
+Makefile                 common commands
 ```
 
-Then in two terminals:
+## Run it locally
 
 ```
-npm run dev:api   # API on http://127.0.0.1:8000
-npm run dev:web   # game on http://localhost:5173 (proxies /api to the API)
+make setup     # once: creates backend/.venv and installs dependencies
+make run       # game and API on http://localhost:8000
 ```
 
-## Run it as one server
+There is nothing to build: edit a file in `frontend/` and refresh the page. Locally, accounts and
+progress are stored in a SQLite file at `backend/data/meerkat.db` (git-ignored).
 
-```
-npm start         # builds the frontend, serves game + API on http://localhost:8000
-```
+`make lint` checks and formats the Python code.
 
-Data is stored in `backend/data/meerkat.db` (SQLite, git-ignored). Set `MVQ_DATA_DIR` to store it somewhere else.
+## Configuration
 
-## Put it online (free)
+All optional, set as environment variables.
 
-The `Dockerfile` builds the game and runs the API + game as one web service on `$PORT`.
-
-- **Database:** locally the API uses a SQLite file (`backend/data/meerkat.db`, or `MVQ_DATA_DIR`). Setting `DATABASE_URL` to a Postgres connection string switches it to Postgres, which is what you want online because free hosts wipe local files on restart.
-- **Privacy while it's a work in progress:** set `MVQ_SITE_PASSWORD`. Everyone must then enter that password (any username) before they can even see the site, and search engines are told not to index it. Leave it unset for a public launch.
-
-Free setup: a free Postgres database on [Neon](https://neon.tech) and a free web service on [Render](https://render.com) (Render > New > Blueprint > pick the GitHub repo; `render.yaml` does the rest). Set `DATABASE_URL` (the Neon connection string) and `MVQ_SITE_PASSWORD` when Render asks. The free web service sleeps after ~15 minutes idle, so the first visit after a quiet spell takes 30-60 seconds to wake up.
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Use Postgres instead of the local SQLite file. Needed in production, where the disk is wiped on restart. |
+| `MVQ_DATA_DIR` | Where the SQLite file lives locally. |
+| `MVQ_SITE_PASSWORD` | Ask everyone for this shared password before showing the site. For previews. |
 
 ## API
 
 | Method | Path | Notes |
 | --- | --- | --- |
+| GET | `/api/health` | `{ ok, version }`; the version is the deployed git commit |
 | POST | `/api/auth/register` | username, password, start_grade |
-| POST | `/api/auth/login` | returns a bearer token + saved progress |
+| POST | `/api/auth/login` | returns a session token and the saved progress |
 | POST | `/api/auth/logout` | |
-| GET / PATCH | `/api/me` | profile + saved progress / change starting grade |
-| PUT | `/api/progress` | saves the whole game state (streak, grades, gems, rewards, settings) |
+| GET / PATCH | `/api/me` | profile and saved progress / change starting grade |
+| PUT | `/api/progress` | saves the whole game state |
+
+The session token is sent in an `X-Session-Token` header.
+
+## Deploying
+
+The `Dockerfile` runs the API and the game as one web service on `$PORT`. On Render, create a
+Blueprint from this repository (`render.yaml`), then set `DATABASE_URL` (for example a free Neon
+Postgres database) and, for a private preview, `MVQ_SITE_PASSWORD`. Pushing to `main` redeploys.
+The deployed version appears at the bottom of the main screen and in `/api/health`.
+
+## Notes
+
+The Eye Therapy tests are pilot exercises and need review by a pediatric optometrist or vision
+therapist before any real-world release. This is a prototype, not a medical device.

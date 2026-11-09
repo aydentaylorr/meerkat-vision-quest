@@ -1,6 +1,5 @@
-**/node_modules
-**/dist
 **/__pycache__
 backend/.venv
 backend/data
 .git
+.DS_Store
