@@ -77,8 +77,3 @@ The `Dockerfile` runs the API and the game as one web service on `$PORT`. On Ren
 Blueprint from this repository (`render.yaml`), then set `DATABASE_URL` (for example a free Neon
 Postgres database) and, for a private preview, `MVQ_SITE_PASSWORD`. Pushing to `main` redeploys.
 The deployed version appears at the bottom of the main screen and in `/api/health`.
-
-## Notes
-
-The Eye Therapy tests are pilot exercises and need review by a pediatric optometrist or vision
-therapist before any real-world release. This is a prototype, not a medical device.
