@@ -31,7 +31,7 @@ frontend/                the game: plain HTML, CSS and JavaScript (ES modules), 
     ui/                  screens: map, HUD, cards, sheets, sign-in, profile, grown-ups area
     modules/             the four game modules and the runner that drives them
   assets/                favicon
-app/                     Expo mobile app: a native shell that loads the game in a WebView
+app/                     the mobile app (Expo / React Native); shares content and art with frontend/
 Dockerfile               container for deployment
 render.yaml              Render deployment blueprint
 Makefile                 common commands
@@ -51,17 +51,37 @@ progress are stored in a SQLite file at `backend/data/meerkat.db` (git-ignored).
 
 ## Mobile app (Expo)
 
-The game runs unchanged inside a WebView; the app in `app/` is the native shell around it.
+`app/` is a native iOS and Android version of the game, built with Expo and React Native. It is
+its own app with native screens, but it is not a second copy of the game: it takes the stories,
+word lists, difficulty curve and artwork straight from `frontend/js` (see `app/src/shared.js`) and
+talks to the same API, so an account works in both and content is edited in one place.
 
 ```
-make run                 # the game server, in one terminal
-cd app && npm install    # once
-npx expo start           # then press i (iOS simulator) or scan the QR code with Expo Go
+make run-lan             # the game server, reachable from a phone or simulator
+make app                 # in another terminal: the app's dev server
 ```
 
-The app loads `EXPO_PUBLIC_GAME_URL` (see `app/.env.example`), defaulting to
-`http://localhost:8000`, which works in the iOS simulator. On a real phone put your Mac's LAN IP
-there, or the deployed URL for release builds.
+Then press `i` for the iOS simulator or `a` for an Android emulator, or scan the QR code with
+Expo Go on a phone on the same Wi-Fi. Expo needs Node 22.13 or newer.
+
+In development the app finds the server on the machine running `make app`. For a release build,
+set `EXPO_PUBLIC_API_URL` to the deployed site (see `app/.env.example`) and build with
+`npx eas-cli@latest build` from `app/`.
+
+```
+app/
+  App.js                 loads the font and starts the game
+  src/
+    shared.js            everything taken from frontend/js (content, difficulty, artwork)
+    rules.js             progress, unlocking, streak and rewards (checked by `npm test`)
+    api.js, storage.js   the game server, and the session token in the device keychain
+    GameContext.js       the signed-in player and their saved game
+    Game.js              which card is on screen and how the player moves between them
+    World.js, Hud.js     the scrolling map, the backdrops and the top bar
+    ui.js                text, buttons, inputs and cards
+    modules/             Reading, Visual Memory, Scanning, Eye Therapy and the runner
+    sheets/              rewards, profile and the grown-ups area
+```
 
 ## Configuration
 
