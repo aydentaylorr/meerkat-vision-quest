@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Meerkat Vision Quest",
+    "slug": "meerkat-vision-quest",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#eaa757",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aqqo.meerkatvisionquest",
+      "infoPlist": { "NSAppTransportSecurity": { "NSAllowsLocalNetworking": true } }
+    },
+    "android": {
+      "package": "com.aqqo.meerkatvisionquest",
+      "adaptiveIcon": {
+        "backgroundColor": "#eaa757",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": { "favicon": "./assets/favicon.png" }
+  }
+}

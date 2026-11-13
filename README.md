@@ -31,6 +31,7 @@ frontend/                the game: plain HTML, CSS and JavaScript (ES modules), 
     ui/                  screens: map, HUD, cards, sheets, sign-in, profile, grown-ups area
     modules/             the four game modules and the runner that drives them
   assets/                favicon
+app/                     Expo mobile app: a native shell that loads the game in a WebView
 Dockerfile               container for deployment
 render.yaml              Render deployment blueprint
 Makefile                 common commands
@@ -47,6 +48,20 @@ There is nothing to build: edit a file in `frontend/` and refresh the page. Loca
 progress are stored in a SQLite file at `backend/data/meerkat.db` (git-ignored).
 
 `make lint` checks and formats the Python code.
+
+## Mobile app (Expo)
+
+The game runs unchanged inside a WebView; the app in `app/` is the native shell around it.
+
+```
+make run                 # the game server, in one terminal
+cd app && npm install    # once
+npx expo start           # then press i (iOS simulator) or scan the QR code with Expo Go
+```
+
+The app loads `EXPO_PUBLIC_GAME_URL` (see `app/.env.example`), defaulting to
+`http://localhost:8000`, which works in the iOS simulator. On a real phone put your Mac's LAN IP
+there, or the deployed URL for release builds.
 
 ## Configuration
 
