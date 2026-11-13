@@ -1,53 +1,26 @@
-// The game itself lives in ../frontend and is served by the backend; this app is a native shell around it.
-import { useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+// Meerkat Vision Quest, the app. The game lives in src/; it shares its stories, word lists,
+// difficulty curve and artwork with the web version in ../frontend (see src/shared.js).
+import { Baloo2_500Medium } from '@expo-google-fonts/baloo-2/500Medium';
+import { Baloo2_700Bold } from '@expo-google-fonts/baloo-2/700Bold';
+import { Baloo2_800ExtraBold } from '@expo-google-fonts/baloo-2/800ExtraBold';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { WebView } from 'react-native-webview';
+import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// ponytail: one env var, no settings screen. Set EXPO_PUBLIC_GAME_URL to the deployed site for release builds.
-const GAME_URL = process.env.EXPO_PUBLIC_GAME_URL || 'http://localhost:8000';
-const BG = '#eaa757'; // matches frontend/css/base.css body background
+import { Game } from './src/Game';
+import { GameProvider } from './src/GameContext';
 
 export default function App() {
-  const web = useRef(null);
-  const [failed, setFailed] = useState(false);
-
+  const [fontsReady, fontError] = useFonts({ Baloo2_500Medium, Baloo2_700Bold, Baloo2_800ExtraBold });
+  // without the font the game still works in the system font, so a failed load does not block it
+  if (!fontsReady && !fontError) return <View style={{ flex: 1, backgroundColor: '#eaa757' }} />;
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.root} edges={['top']}>
-        <StatusBar style="dark" backgroundColor={BG} />
-        {failed ? (
-          <View style={styles.center}>
-            <Text style={styles.msg}>Can’t reach the game right now.</Text>
-            <Pressable style={styles.btn} onPress={() => { setFailed(false); web.current?.reload(); }}>
-              <Text style={styles.btnText}>Try again</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <WebView
-            ref={web}
-            source={{ uri: GAME_URL }}
-            style={styles.root}
-            bounces={false}
-            overScrollMode="never"
-            allowsBackForwardNavigationGestures={false}
-            setSupportMultipleWindows={false}
-            startInLoadingState
-            renderLoading={() => <ActivityIndicator style={styles.center} color="#fff" size="large" />}
-            onError={() => setFailed(true)}
-            onHttpError={(e) => { if (e.nativeEvent.statusCode >= 500) setFailed(true); }}
-          />
-        )}
-      </SafeAreaView>
+      <StatusBar style="dark" />
+      <GameProvider>
+        <Game />
+      </GameProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BG },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: BG, gap: 16 },
-  msg: { fontSize: 18, color: '#3a2a12' },
-  btn: { backgroundColor: '#3a2a12', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-});
