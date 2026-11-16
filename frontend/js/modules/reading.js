@@ -48,6 +48,7 @@ function playReading(grade){
   const vocabRounds = Array.from({ length: c.vocab.rounds }, () => ({ target: pick(c.vocab.pool) }));
   let vi = 0, vocabCorrect = 0, qi = 0, compCorrect = 0;
   let measuredWpm = 0, practiceWpm = 0;
+  const quiz = [], vocab = [];
   const head = extra => `<div class="ctitle">${c.label}</div>
     <div class="center cmuted" style="font-size:.92rem">Word check ${Math.min(vi+1, c.vocab.rounds)} of ${c.vocab.rounds}</div>${extra}`;
 
@@ -55,7 +56,7 @@ function playReading(grade){
     if(vi >= c.vocab.rounds){
       const score = (vocabCorrect / c.vocab.rounds) * 0.5 + (compCorrect / c.questions.length) * 0.5;
       const detailText = `read at ${measuredWpm} wpm, practiced at ${practiceWpm} wpm · ${compCorrect} of ${c.questions.length} questions · ${vocabCorrect} of ${c.vocab.rounds} word check`;
-      finishModule(grade, 'read', score, score >= c.pass, detailText);
+      finishModule(grade, 'read', score, score >= c.pass, detailText, 'reading', { wpm:measuredWpm, practiceWpm, quiz, vocab });
       return;
     }
     const r = vocabRounds[vi];
@@ -90,6 +91,7 @@ function playReading(grade){
       const val = (inputEl.value || '').trim().toLowerCase();
       const ok = val === r.target.toLowerCase();
       if(ok) vocabCorrect++;
+      vocab.push([r.target, val.slice(0, r.target.length + 2)]);
       inputEl.disabled = true;
       inputEl.classList.add(ok ? 'right' : 'wrong');
       if(!ok) inputEl.value = r.target.toUpperCase();
@@ -168,6 +170,7 @@ function playReading(grade){
       const chosen = opts[k];
       const ok = chosen === cq.answer;
       if(ok) compCorrect++;
+      quiz.push([cq.options.indexOf(chosen), ok]);
       document.querySelectorAll('#quizOpts .abtn').forEach(b => b.disabled = true);
       document.getElementById('qopt' + k).classList.add(ok ? 'right' : 'wrong');
       if(!ok){

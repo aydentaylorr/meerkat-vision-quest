@@ -42,6 +42,22 @@ CREATE TABLE IF NOT EXISTS email_tokens (
     email      TEXT NOT NULL,
     expires_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS players (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    anon_id TEXT NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS attempts (
+    anon_id      TEXT NOT NULL,
+    ts           BIGINT NOT NULL,
+    school_grade INTEGER NOT NULL,
+    grade        INTEGER NOT NULL,
+    module       TEXT NOT NULL,
+    kind         TEXT NOT NULL,
+    score        INTEGER NOT NULL,
+    passed       INTEGER NOT NULL,
+    detail_json  TEXT NOT NULL,
+    PRIMARY KEY (anon_id, ts)
+);
 """
 
 USING_POSTGRES = bool(DATABASE_URL)

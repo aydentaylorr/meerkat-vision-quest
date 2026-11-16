@@ -6,6 +6,7 @@ import { bumpStreak, gradeFullyDone } from '../core/progress.js';
 import { game, run, session, setRun, view } from '../core/state.js';
 import { clearTimers, later } from '../core/timers.js';
 import { $, clamp, dayKey, pct, pick } from '../core/utils.js';
+import { BUILD } from '../core/version.js';
 import { cosmetic } from '../data/cosmetics.js';
 import { gradeInfo, gradeReward } from '../data/grades.js';
 import { MODULE_META } from '../data/modules.js';
@@ -60,12 +61,28 @@ function countdownThen(label, prompt, fn){
   later(tick, 700);
 }
 
-export function finishModule(grade, moduleKey, score, pass, detailText){
+/* how many of the newest runs keep their answers in the saved game */
+const DETAIL_RUNS = 40;
+
+/* the conditions an exercise was played under, for comparing groups of players. Nothing here
+   identifies anyone: the screen width is rounded and there is no name, device id or location. */
+const playContext = () => ({
+  min: Math.round((Date.now() - session.start)/60000), hr: new Date().getHours(),
+  touch: matchMedia('(pointer: coarse)').matches, w: Math.round(innerWidth/100)*100,
+  fs: game.settings.fs, contrast: game.settings.contrast, v: BUILD,
+  app: 'web' // the native app sends 'ios' or 'android'
+});
+
+/* kind: which game inside the module. detail: what was shown and what the child answered;
+   the server also collects it for every player (backend/app/routes/progress.py). */
+export function finishModule(grade, moduleKey, score, pass, detailText, kind, detail){
   clearTimers(); night(false);
   $('#fx').className = ''; $('#fx').innerHTML = '';
   score = clamp(score, 0, 1);
-  game.log.push({ ts:Date.now(), day:dayKey(), grade, module:moduleKey, score:Math.round(score*100), pass });
+  game.log.push({ ts:Date.now(), day:dayKey(), grade, module:moduleKey, kind, score:Math.round(score*100), pass, d:{ ...detail, ctx:playContext() } });
   if(game.log.length > 400) game.log = game.log.slice(-400);
+  // ponytail: older runs drop their answers so a save stays under the 64KB a keepalive request allows
+  const old = game.log[game.log.length - 1 - DETAIL_RUNS]; if(old) delete old.d;
 
   let note = null, newlyDone = false, gradeCompleteNow = false, reward = null, gemsWon = 0;
   if(pass){

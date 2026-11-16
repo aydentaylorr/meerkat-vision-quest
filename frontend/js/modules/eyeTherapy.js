@@ -61,6 +61,7 @@ export function startFusion(grade, kind){
 function playFusion(grade, kind){
   const c = eyeConfig(grade), conv = kind === 'convergence', name = conv ? 'Convergence' : 'Divergence';
   let round = 0, correct = 0, last = '', times = [];
+  const answers = [];
   const tip = conv
     ? 'Look at the orange dot in the middle. Slowly cross your eyes, like looking at the tip of your nose, until the two circles slide together into one. Type the letter or number you see in the middle circle.'
     : 'Wear your red/blue glasses, red lens over your left eye. Look at the middle and relax your eyes, like gazing far away, until the red and blue circles join into one. Type the letter or number you see.';
@@ -70,7 +71,7 @@ function playFusion(grade, kind){
     if(round >= c.rounds){
       const score = correct / c.rounds;
       const avg = times.length ? (times.reduce((x, y) => x + y, 0) / times.length / 1000).toFixed(1) : '0';
-      finishModule(grade, 'eye', score, score >= c.pass, `${correct} of ${c.rounds} correct · ${avg}s average`);
+      finishModule(grade, 'eye', score, score >= c.pass, `${correct} of ${c.rounds} correct · ${avg}s average`, kind, { rounds:answers });
       return;
     }
     let ch; do{ ch = pick(c.chars); }while(ch === last); last = ch;
@@ -90,14 +91,15 @@ function playFusion(grade, kind){
       el.disabled = true; el.classList.add(ok ? 'right' : 'wrong');
       if(!ok) el.value = ch;
       if(ok){ correct++; times.push(performance.now() - t0); }
+      answers.push([ch, typed, Math.round(performance.now() - t0)]);
       document.querySelectorAll('#cards button.abtn').forEach(b => b.disabled = true);
       later(() => { round++; next(); }, ok ? 700 : 1300);
     };
     window.__fuSubmit = () => {
       const v = (inp.value || '').trim().toUpperCase();
-      if(v) settle(v === ch);
+      if(v) settle(v === ch, v);
     };
-    window.__fuSkip = () => settle(false);
+    window.__fuSkip = () => settle(false, null);
   }
   next();
 }

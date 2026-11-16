@@ -34,6 +34,7 @@ function flashTypeRound(opts, onResult){
           <button class="abtn" onclick="__flashSubmit()">OK</button>`, 'focus');
         const inp = document.getElementById('flashInput');
         if(inp){ inp.focus(); inp.onkeydown = e => { if(e.key === 'Enter') window.__flashSubmit(); }; }
+        const t0 = performance.now();
         window.__flashSubmit = () => {
           window.__flashSubmit = () => {};
           const inputEl = document.getElementById('flashInput');
@@ -43,7 +44,9 @@ function flashTypeRound(opts, onResult){
           inputEl.classList.add(ok ? 'right' : 'wrong');
           if(!ok) inputEl.value = String(target);
           document.querySelectorAll('button.abtn').forEach(b => b.disabled = true);
-          later(() => onResult({ ok, typed }), ok ? 700 : 1300);
+          const ms = Math.round(performance.now() - t0);
+          // the answer is kept no longer than the target plus two, so a name typed here is not stored
+          later(() => onResult({ ok, typed:typed.slice(0, String(target).length + 2), ms }), ok ? 700 : 1300);
         };
       }, 200);
     }, flashMs);
@@ -94,15 +97,17 @@ export function startFlashMemory(grade, kind){
 
 function playFlashMemory(grade, kind, rounds){
   let round = 0, correct = 0;
+  const answers = [];
   function next(){
     if(round >= rounds){
       const score = correct / rounds;
-      finishModule(grade, 'mem', score, score >= 0.5, `${correct} of ${rounds} correct`);
+      finishModule(grade, 'mem', score, score >= 0.5, `${correct} of ${rounds} correct`, kind, { rounds:answers });
       return;
     }
     const target = flashMemoryTarget(kind, grade);
     flashTypeRound({ target, flashMs:500, title:FLASH_MEMORY_NAME[kind], roundLabel:`Round ${round + 1} of ${rounds}` }, res => {
       if(res.ok) correct++;
+      answers.push([target, res.typed, res.ms]);
       round++; next();
     });
   }
@@ -176,7 +181,8 @@ function playCardMatch(grade){
   };
   function end(){
     const score = (matched / c.pairs) * (c.pairs / Math.max(moves, c.pairs));
-    finishModule(grade, 'mem', score, score >= c.pass, `${matched} of ${c.pairs} pairs · ${moves} tries${timeUp ? ' · time ran out' : ''}`);
+    finishModule(grade, 'mem', score, score >= c.pass, `${matched} of ${c.pairs} pairs · ${moves} tries${timeUp ? ' · time ran out' : ''}`,
+      'cards', { pairs:c.pairs, moves, matched, timeUp });
   }
   if(c.time){
     const tick = () => { left--; status(); if(left <= 0){ timeUp = true; end(); return; } later(tick, 1000); };
