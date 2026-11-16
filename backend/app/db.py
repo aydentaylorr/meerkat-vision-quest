@@ -27,6 +27,13 @@ CREATE TABLE IF NOT EXISTS progress (
     state_json TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS parents (
+    user_id       INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    email         TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    consent_at    TEXT,
+    created_at    TEXT NOT NULL
+);
 """
 
 USING_POSTGRES = bool(DATABASE_URL)

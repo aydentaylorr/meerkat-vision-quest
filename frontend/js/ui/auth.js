@@ -10,6 +10,7 @@ import { closeExit } from '../modules/runner.js';
 import { applySettings, card, clearCard, night, toast } from './cards.js';
 import { renderHud } from './hud.js';
 import { toMap } from './map.js';
+import { parentFields, readParentFields } from './parentGate.js';
 import { closeSheet } from './sheets.js';
 import { setScene } from './world.js';
 
@@ -21,7 +22,7 @@ export const gradeOptions = (sel, placeholder) =>
 
 function authCard(msg){
   const reg = authForm.mode === 'register';
-  card(`<div style="width:26%;margin:0 auto">${meerkatSVG()}</div>
+  card(`<div style="width:${reg ? 14 : 26}%;margin:0 auto">${meerkatSVG()}</div>
     <div class="ctitle">Meerkat Vision Quest</div>
     <div class="chead">${reg ? 'Make your account' : 'Welcome back!'}</div>
     <div class="tabs" style="justify-content:center;margin:.2rem 0">
@@ -30,7 +31,10 @@ function authCard(msg){
     <input class="vinput" id="auUser" placeholder="Username" maxlength="20" autocomplete="username" autocapitalize="off" spellcheck="false" value="${esc(authForm.username)}">
     <input class="vinput" id="auPass" type="password" placeholder="Password" maxlength="128" autocomplete="${reg ? 'new-password' : 'current-password'}">
     ${reg ? `<select class="vinput" id="auGrade" aria-label="What grade are you in?">${gradeOptions(authForm.grade, 'What grade are you in?')}</select>
-      <div class="cmuted center" style="font-size:.8rem">Tip: use a fun nickname instead of your real name, and ask a grown-up to help.</div>` : ''}
+      <div class="cmuted center" style="font-size:.8rem">Tip: use a fun nickname instead of your real name.</div>
+      <div class="center" style="font-weight:800;margin-top:.7rem">Now pass this to a grown-up</div>
+      <div class="cmuted center" style="font-size:.8rem">Your email and a password of your own open the grown-ups area.</div>
+      ${parentFields()}` : ''}
     <div class="autherr" id="auErr">${esc(msg || '')}</div>
     <button class="abtn" id="auGo" onclick="authSubmit()">${reg ? 'Create my account' : 'Log in'}</button>
     <div class="cmuted center" style="font-size:.7rem;margin-top:.5rem">Version ${esc(BUILD)}</div>`, 'focus');
@@ -59,11 +63,13 @@ export async function authSubmit(){
   if(!password) return fail('Please type your password');
   if(reg && password.length < 6) return fail('Password needs at least 6 characters');
   if(reg && !(grade >= 1 && grade <= GRADES_COUNT)) return fail('Please choose the grade you are in');
+  const grownUp = reg ? readParentFields(password) : {};
+  if(grownUp.error) return fail(grownUp.error);
   authForm.busy = true; fail('');
   const go = $('#auGo'); if(go) go.disabled = true;
   try{
     const sess = await api('POST', reg ? '/api/auth/register' : '/api/auth/login',
-      reg ? { username, password, start_grade:grade } : { username, password });
+      reg ? { username, password, start_grade:grade, parent:grownUp.parent } : { username, password });
     setToken(sess.token); store.write(TOKEN_KEY, token);
     authForm.busy = false;
     enterGame(sess);

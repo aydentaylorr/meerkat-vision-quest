@@ -63,13 +63,23 @@ All optional, set as environment variables.
 | Method | Path | Notes |
 | --- | --- | --- |
 | GET | `/api/health` | `{ ok, version }`; the version is the deployed git commit |
-| POST | `/api/auth/register` | username, password, start_grade |
+| POST | `/api/auth/register` | username, password, start_grade, and optionally `parent` (email, password, consent) |
 | POST | `/api/auth/login` | returns a session token and the saved progress |
 | POST | `/api/auth/logout` | |
 | GET / PATCH | `/api/me` | profile and saved progress / change starting grade |
 | PUT | `/api/progress` | saves the whole game state |
+| POST | `/api/parent` | adds the grown-up to an account that has none |
+| POST | `/api/parent/unlock` | checks the grown-up password, to open the grown-ups area |
+| PUT | `/api/parent/consent` | grown-up password and consent on or off |
 
 The session token is sent in an `X-Session-Token` header.
+
+## Grown-ups and consent
+
+Each account has one grown-up on record in the `parents` table: an email address, a password of
+their own and whether they have agreed to sharing. Sign-up on the web asks for them. The grown-ups
+area opens only with the grown-up password and locks again when it closes. The email address is
+recorded but not yet verified, and there is no way to reset a forgotten grown-up password.
 
 ## Deploying
 
