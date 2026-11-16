@@ -62,7 +62,7 @@ def register(body: RegisterIn, db: Conn = Depends(get_db)):
     except IntegrityErrors:
         raise HTTPException(409, "That username is already taken") from None
     if body.parent:
-        add_parent(db, user["id"], body.parent)
+        add_parent(db, user, body.parent)
     return _open_session(db, user)
 
 

@@ -1,9 +1,9 @@
 """Request and response shapes for the API."""
 
 import re
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AfterValidator, BaseModel, Field, field_validator
 
 from .config import MAX_GRADE
 
@@ -11,20 +11,23 @@ _USERNAME_RE = re.compile(r"^[a-z0-9_]{3,20}$")
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
+def _clean_email(v: str) -> str:
+    v = v.strip().lower()
+    if not _EMAIL_RE.match(v):
+        raise ValueError("Please enter a real email address")
+    return v
+
+
+Email = Annotated[str, Field(max_length=254), AfterValidator(_clean_email)]
+GrownUpPassword = Annotated[str, Field(min_length=8, max_length=128)]
+
+
 class ParentIn(BaseModel):
     """The grown-up on record for a player's account."""
 
-    email: str = Field(max_length=254)
-    password: str = Field(min_length=6, max_length=128)
+    email: Email
+    password: GrownUpPassword
     consent: bool = False
-
-    @field_validator("email")
-    @classmethod
-    def _email(cls, v: str) -> str:
-        v = v.strip().lower()
-        if not _EMAIL_RE.match(v):
-            raise ValueError("Please enter a real email address")
-        return v
 
 
 class ParentUnlockIn(BaseModel):
@@ -36,9 +39,24 @@ class ConsentIn(BaseModel):
     consent: bool
 
 
+class EmailChangeIn(BaseModel):
+    password: str = Field(max_length=128)
+    email: Email
+
+
+class TokenIn(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+
+
+class ResetConfirmIn(TokenIn):
+    password: GrownUpPassword
+
+
 class ParentOut(BaseModel):
     has_parent: bool
+    verified: bool
     consent: bool
+    email_hint: str
 
 
 class RegisterIn(BaseModel):

@@ -10,7 +10,7 @@ import { closeExit } from '../modules/runner.js';
 import { applySettings, card, clearCard, night, toast } from './cards.js';
 import { renderHud } from './hud.js';
 import { toMap } from './map.js';
-import { parentFields, readParentFields } from './parentGate.js';
+import { openEmailLink, parentFields, readParentFields } from './parentGate.js';
 import { closeSheet } from './sheets.js';
 import { setScene } from './world.js';
 
@@ -33,7 +33,7 @@ function authCard(msg){
     ${reg ? `<select class="vinput" id="auGrade" aria-label="What grade are you in?">${gradeOptions(authForm.grade, 'What grade are you in?')}</select>
       <div class="cmuted center" style="font-size:.8rem">Tip: use a fun nickname instead of your real name.</div>
       <div class="center" style="font-weight:800;margin-top:.7rem">Now pass this to a grown-up</div>
-      <div class="cmuted center" style="font-size:.8rem">Your email and a password of your own open the grown-ups area.</div>
+      <div class="cmuted center" style="font-size:.8rem">We email you a link to confirm. Then a password of your own opens the grown-ups area.</div>
       ${parentFields()}` : ''}
     <div class="autherr" id="auErr">${esc(msg || '')}</div>
     <button class="abtn" id="auGo" onclick="authSubmit()">${reg ? 'Create my account' : 'Log in'}</button>
@@ -73,6 +73,7 @@ export async function authSubmit(){
     setToken(sess.token); store.write(TOKEN_KEY, token);
     authForm.busy = false;
     enterGame(sess);
+    if(reg) toast('We emailed a link to the grown-up');
   }catch(e){
     authForm.busy = false;
     fail(e.message);
@@ -110,6 +111,7 @@ export async function logout(){
 }
 
 export async function boot(){
+  if(await openEmailLink()) return;
   if(!token){ authCard(); return; }
   card(`<div class="chead">Loading your adventure…</div>`, 'focus');
   try{ enterGame(await api('GET', '/api/me')); }
