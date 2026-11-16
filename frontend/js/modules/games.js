@@ -5,6 +5,7 @@
 import { toast } from '../ui/cards.js';
 
 export const EXTRA_GAMES = [
+  { module:'read', label:'🧭 Story Paths', file:'storyPaths.js' },
 ];
 
 export const extraGameButtons = (moduleKey, grade) => EXTRA_GAMES
