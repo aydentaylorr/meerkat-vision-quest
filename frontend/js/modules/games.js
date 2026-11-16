@@ -5,6 +5,7 @@
 import { toast } from '../ui/cards.js';
 
 export const EXTRA_GAMES = [
+  { module:'read', label:'🔊 Sound Match', file:'soundMatch.js' },
 ];
 
 export const extraGameButtons = (moduleKey, grade) => EXTRA_GAMES
