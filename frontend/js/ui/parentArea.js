@@ -1,24 +1,25 @@
 /* The grown-ups area: progress, settings and about. */
 import { save } from '../core/api.js';
 import { currentGrade, gradeModulesDoneCount } from '../core/progress.js';
-import { game, normalizeState, session, setGame, setSession, view } from '../core/state.js';
-import { clamp, dayKey, rnd } from '../core/utils.js';
+import { game, normalizeState, session, setGame, setSession, user, view } from '../core/state.js';
+import { clamp, dayKey, esc, rnd } from '../core/utils.js';
 import { GRADES_COUNT } from '../data/grades.js';
 import { MODULE_KEYS, MODULE_META } from '../data/modules.js';
 import { applySettings, toast } from './cards.js';
 import { renderHud } from './hud.js';
 import { toMap } from './map.js';
+import { gateView, parentUnlocked } from './parentGate.js';
 import { closeSheet, renderSheet } from './sheets.js';
 
 export function parentSheet(){
+  const head = `<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
+      <h2 class="sh" style="margin:0">For grown-ups</h2>
+      <button class="tab" onclick="closeSheet()">Close</button></div>`;
+  if(!parentUnlocked()) return head + gateView();
   const tabs = [['progress','Progress'],['settings','Settings'],['about','About & safety']]
     .map(([k,l]) => `<button class="tab ${view.tab === k ? 'on' : ''}" onclick="setTab('${k}')">${l}</button>`).join('');
   const body = { progress:tabProgress, settings:tabSettings, about:tabAbout }[view.tab]();
-  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
-      <h2 class="sh" style="margin:0">For grown-ups</h2>
-      <button class="tab" onclick="closeSheet()">Close</button></div>
-    <p class="cmuted" style="margin:.2rem 0">In a real build this would sit behind a parent gate.</p>
-    <div class="tabs">${tabs}</div>${body}`;
+  return `${head}<div class="tabs">${tabs}</div>${body}`;
 }
 
 function tabProgress(){
@@ -58,6 +59,11 @@ function tabSettings(){
     <div style="display:flex;gap:.4rem;flex-wrap:wrap">
       ${[10,15,20,30].map(m => `<button class="tab ${game.settings.sessionCap === m ? 'on' : ''}" onclick="setCap(${m})">${m} min</button>`).join('')}</div>
     <p class="cmuted">This session so far: ${Math.round((Date.now() - session.start)/60000)} min</p>
+    <h2 class="sh" style="margin-top:1rem">Sharing answers</h2>
+    <div class="toggle"><div><b>Help improve the game</b>
+      <div class="cmuted">Lets this player’s answers be studied together with other players’, without their name. Turning it off deletes what was collected from this player.</div></div>
+      <button class="switch ${user.consent ? 'on' : ''}" aria-label="Share answers" onclick="setConsent(${!user.consent})"><i></i></button></div>
+    <p class="cmuted">Grown-up on record: ${esc(user.email_hint)}. We email this address whenever sharing is switched on.</p>
     <h2 class="sh" style="margin-top:1rem">Demo tools</h2>
     <div class="stack">
       <button class="abtn ghost sm" onclick="unlockAll()">Unlock all adventures (for previewing)</button>
@@ -77,7 +83,7 @@ function tabAbout(){
       <li>Convergence/divergence: Focus Trek is a safe stand-in only.</li>
       <li>Launch platforms — web only, or mobile wrappers too?</li>
       <li>COPPA / GDPR-K: account model, storage and analytics designed in from day one.</li></ol>
-    <p class="cmuted">Progress is saved to this player’s account on the game server. Accounts use a username and password only — no email address and no analytics.</p>`;
+    <p class="cmuted">Progress is saved to this player’s account on the game server. The player signs in with a username and password. A grown-up’s email address is kept with the account, confirmed through a link we send to it, as the record of who set it up.</p>`;
 }
 
 export function toggleSetting(k){ game.settings[k] = !game.settings[k]; save(); applySettings(); renderSheet(); }

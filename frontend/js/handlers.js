@@ -8,6 +8,9 @@ import { authMode, authSubmit, boot, logout } from './ui/auth.js';
 import { toast } from './ui/cards.js';
 import { mapCard, openGrade, tapNode, toMap } from './ui/map.js';
 import { fontStep, resetAll, seedDemo, setCap, toggleSetting, unlockAll } from './ui/parentArea.js';
+import {
+  parentChangeEmail, parentForgot, parentNewPassword, parentRecheck, parentResend, parentSetup, parentUnlock, setConsent,
+} from './ui/parentGate.js';
 import { saveProfile } from './ui/profile.js';
 import { buy, equip } from './ui/rewards.js';
 import { closeSheet, openSheet, setTab } from './ui/sheets.js';
@@ -29,12 +32,20 @@ Object.assign(window, {
   openGrade,
   openScanningMenu,
   openSheet,
+  parentChangeEmail,
+  parentForgot,
+  parentNewPassword,
+  parentRecheck,
+  parentResend,
+  parentSetup,
+  parentUnlock,
   openVisualMemoryMenu,
   resetAll,
   retryModule,
   saveProfile,
   seedDemo,
   setCap,
+  setConsent,
   setTab,
   startCardMatch,
   startFlashMemory,

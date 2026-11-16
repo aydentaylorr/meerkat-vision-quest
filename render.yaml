@@ -10,3 +10,15 @@ services:
         sync: false
       - key: MVQ_SITE_PASSWORD
         sync: false
+      # Needed for grown-up accounts: where the game is reached, and the mail server that sends
+      # the confirmation links.
+      - key: MVQ_PUBLIC_URL
+        sync: false
+      - key: MVQ_SMTP_HOST
+        sync: false
+      - key: MVQ_SMTP_USER
+        sync: false
+      - key: MVQ_SMTP_PASSWORD
+        sync: false
+      - key: MVQ_MAIL_FROM
+        sync: false

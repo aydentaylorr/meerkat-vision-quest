@@ -27,6 +27,21 @@ CREATE TABLE IF NOT EXISTS progress (
     state_json TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS parents (
+    user_id       INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    email         TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    verified_at   TEXT,
+    consent_at    TEXT,
+    created_at    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS email_tokens (
+    token_hash TEXT PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    purpose    TEXT NOT NULL,
+    email      TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
 """
 
 USING_POSTGRES = bool(DATABASE_URL)
