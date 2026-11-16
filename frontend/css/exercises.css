@@ -10,6 +10,7 @@
   background:linear-gradient(180deg,#e9a95c,#dd914a);box-shadow:0 4px 0 #b9762f;}
 .mcard.up{background:linear-gradient(180deg,#fffaf0,#fff0d6);box-shadow:0 4px 0 var(--line);}
 .mcard.matched{background:linear-gradient(180deg,#9be07f,#7ac943);box-shadow:0 4px 0 var(--green-d);}
+.mcard.wrong{background:linear-gradient(180deg,#f59a8c,var(--red));box-shadow:0 4px 0 var(--red-d);}
 .mmgrid{display:grid;gap:.6rem;margin:.6rem auto 0;width:100%;}
 .mmcard{aspect-ratio:1/1;border-radius:18px;display:grid;place-items:center;cursor:pointer;user-select:none;
   font-size:var(--mfs,3rem);line-height:1;color:#fff;
