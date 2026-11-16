@@ -5,6 +5,7 @@
 import { toast } from '../ui/cards.js';
 
 export const EXTRA_GAMES = [
+  { module:'mem', label:'🧩 Sequence Recall', file:'sequenceRecall.js' },
 ];
 
 export const extraGameButtons = (moduleKey, grade) => EXTRA_GAMES
