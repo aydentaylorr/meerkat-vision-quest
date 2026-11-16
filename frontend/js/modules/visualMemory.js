@@ -5,6 +5,7 @@ import { later } from '../core/timers.js';
 import { $, pick, rnd, shuffle } from '../core/utils.js';
 import { flashMemoryRounds, gradeT, memConfig } from '../data/difficulty.js';
 import { gradeInfo } from '../data/grades.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { card, toast } from '../ui/cards.js';
 import { renderHud } from '../ui/hud.js';
@@ -64,6 +65,7 @@ export function openVisualMemoryMenu(grade){
       <button class="abtn b" onclick="startFlashMemory(${grade},'upper')">🔠 Capital Letter Memory</button>
       <button class="abtn p" onclick="startFlashMemory(${grade},'word')">🔤 Word Memory</button>
       <button class="abtn r" onclick="startCardMatch(${grade})">🃏 Card Match Memory</button>
+      ${extraGameButtons('mem', grade)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }

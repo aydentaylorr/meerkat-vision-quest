@@ -3,6 +3,7 @@ import { setRun, view } from '../core/state.js';
 import { later } from '../core/timers.js';
 import { esc, pick } from '../core/utils.js';
 import { eyeConfig } from '../data/difficulty.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { card } from '../ui/cards.js';
 import { renderHud } from '../ui/hud.js';
@@ -15,6 +16,7 @@ export function openEyeMenu(grade){
     <div class="stack">
       <button class="abtn" onclick="startFusion(${grade},'convergence')">👀 Convergence</button>
       <button class="abtn o" onclick="startFusion(${grade},'divergence')">🕶️ Divergence (red/blue glasses)</button>
+      ${extraGameButtons('eye', grade)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }

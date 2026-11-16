@@ -29,7 +29,7 @@ frontend/                the game: plain HTML, CSS and JavaScript (ES modules), 
     data/                content: stories, word lists, grades, difficulty, rewards
     art/                 the hand-drawn SVG world, Nomi and icons
     ui/                  screens: map, HUD, cards, sheets, sign-in, profile, grown-ups area
-    modules/             the four game modules and the runner that drives them
+    modules/             the four game modules, the runner that drives them, and extra games (games.js)
   assets/                favicon
 Dockerfile               container for deployment
 render.yaml              Render deployment blueprint
@@ -45,6 +45,9 @@ make run       # game and API on http://localhost:8000
 
 There is nothing to build: edit a file in `frontend/` and refresh the page. Locally, accounts and
 progress are stored in a SQLite file at `backend/data/meerkat.db` (git-ignored).
+
+To add a game, put it in its own file in `frontend/js/modules/`, exporting `start(grade)`, and add one
+line for it to the list in `games.js`. It then shows up in that module's menu and its answers are collected like any other.
 
 `make lint` checks and formats the Python code. `make test` runs the backend checks.
 

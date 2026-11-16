@@ -1,12 +1,14 @@
 /* Reading module: read the story twice, answer questions, word check. */
 import { ARROW_DOWN, ARROW_UP } from '../art/icons.js';
 import { ART } from '../art/primitives.js';
-import { view } from '../core/state.js';
+import { setRun, view } from '../core/state.js';
 import { later } from '../core/timers.js';
 import { clamp, pick, shuffle } from '../core/utils.js';
 import { readConfig } from '../data/difficulty.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { BTN_COLOURS, card } from '../ui/cards.js';
+import { renderHud } from '../ui/hud.js';
 
 /* reveals `text` as a moving "block" — only the current chunk of `chunkSize`
    words is visible at a time (everything before and after it is hidden),
@@ -29,6 +31,21 @@ function revealChunksInto(elId, text, wpm, chunkSize, onDone){
     }, intervalMs);
   };
   tick();
+}
+
+/* the story is the only Reading game until an extra one is added, so it then starts straight away */
+export function openReadingMenu(grade){
+  const extra = extraGameButtons('read', grade);
+  if(!extra) return startReading(grade);
+  setRun({ grade, moduleKey:'read', retryFn:null });
+  view.mode = 'intro'; view.msg = null; renderHud();
+  card(`<div class="ctitle">Reading</div>
+    <div class="chead">Choose a game</div>
+    <div class="stack">
+      <button class="abtn" onclick="startReading(${grade})">📖 Story Reading</button>
+      ${extra}
+    </div>
+    <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }
 
 export function startReading(grade){

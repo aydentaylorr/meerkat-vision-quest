@@ -4,7 +4,7 @@ import { GRADE_COMPREHENSION } from './stories.js';
 import { MEMORY_ICON_POOL } from './words.js';
 
 export const gradeT = grade => (grade - 1) / (GRADES_COUNT - 1);
-const gLerp  = (grade, a, b) => Math.round(a + (b - a) * gradeT(grade));
+export const gLerp = (grade, a, b) => Math.round(a + (b - a) * gradeT(grade));
 
 export function readConfig(grade){
   const gi = gradeInfo(grade);

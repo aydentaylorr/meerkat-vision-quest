@@ -5,6 +5,7 @@ import { later } from '../core/timers.js';
 import { clamp, pick, shuffle } from '../core/utils.js';
 import { symbolSearchConfig, trackingConfig } from '../data/difficulty.js';
 import { ELEMENT_META, elementPool } from '../data/words.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { BTN_COLOURS, card } from '../ui/cards.js';
 import { renderHud } from '../ui/hud.js';
@@ -17,6 +18,7 @@ export function openScanningMenu(grade){
     <div class="stack">
       <button class="abtn" onclick="openElementMenu(${grade},'tracking')">🧮 Tracking</button>
       <button class="abtn o" onclick="openElementMenu(${grade},'symbol')">🔍 Symbol Search</button>
+      ${extraGameButtons('scan', grade)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }
