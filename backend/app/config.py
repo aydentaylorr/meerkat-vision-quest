@@ -22,3 +22,16 @@ SESSION_DAYS = 30
 MAX_STATE_BYTES = 256 * 1024
 LOGIN_MAX_FAILURES = 5
 LOGIN_WINDOW_SECONDS = 300
+
+# Email, used to confirm a grown-up's address. With no MVQ_SMTP_HOST (local development)
+# messages are written to the server log instead of being sent.
+SMTP_HOST = os.environ.get("MVQ_SMTP_HOST", "")
+SMTP_PORT = int(os.environ.get("MVQ_SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("MVQ_SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("MVQ_SMTP_PASSWORD", "")
+MAIL_FROM = os.environ.get("MVQ_MAIL_FROM", "Meerkat Vision Quest <no-reply@localhost>")
+# Where players reach the game. Links in emails are built from this, never from the request,
+# so a forged Host header cannot point a link somewhere else.
+PUBLIC_URL = os.environ.get("MVQ_PUBLIC_URL", "http://localhost:8000").rstrip("/")
+VERIFY_HOURS = 24
+RESET_MINUTES = 60

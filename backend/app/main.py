@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from . import frontend
 from .db import close_db, init_db
 from .middleware import preview_gate
-from .routes import auth, health, progress
+from .routes import auth, health, parent, progress
 
 
 @asynccontextmanager
@@ -22,6 +22,7 @@ app.middleware("http")(preview_gate)
 
 app.include_router(health.router)
 app.include_router(auth.router)
+app.include_router(parent.router)
 app.include_router(progress.router)
 
 # Registered last so the API routes above always win.

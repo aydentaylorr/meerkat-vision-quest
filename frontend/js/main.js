@@ -14,4 +14,6 @@ import { fitScene, setScene } from './ui/world.js';
   requestAnimationFrame(fitScene);
   setTimeout(fitScene, 300);
   boot();
+  // an emailed link pasted into a tab that already has the game open
+  addEventListener('hashchange', () => { if(/^#(verify|reset)=/.test(location.hash)) boot(); });
 })();

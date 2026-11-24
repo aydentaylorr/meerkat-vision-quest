@@ -1,7 +1,7 @@
 # Common commands. Run `make` to see them.
 VENV := backend/.venv
 
-.PHONY: help setup run run-lan app lint
+.PHONY: help setup run run-lan app lint test
 
 help:
 	@echo "make setup   create the Python environment and install dependencies"
@@ -9,6 +9,7 @@ help:
 	@echo "make run-lan same, but reachable from a phone or simulator (for the app)"
 	@echo "make app     start the mobile app's dev server (run 'make run-lan' alongside)"
 	@echo "make lint    check and format the Python code"
+	@echo "make test    run the backend checks"
 
 setup:
 	python3 -m venv $(VENV)
@@ -27,3 +28,8 @@ lint:
 	$(VENV)/bin/pip install -q ruff
 	$(VENV)/bin/ruff check backend
 	$(VENV)/bin/ruff format backend
+
+# Runs every test file it finds, so a branch that adds a test does not edit this file.
+test:
+	@for t in backend/tests/test_*.py; do echo $$t; PYTHONPATH=backend $(VENV)/bin/python $$t || exit 1; done
+	@for t in $$(find frontend/js -name '*.test.mjs'); do echo $$t; node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON $$t || exit 1; done

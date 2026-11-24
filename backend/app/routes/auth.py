@@ -19,15 +19,17 @@ from ..security import (
     record_login_failure,
     verify_password,
 )
+from .parent import SAME_PASSWORD, add_parent, parent_state
 
 router = APIRouter(prefix="/api", tags=["auth"])
 
 
-def _user_out(row: Row) -> UserOut:
+def _user_out(db: Conn, row: Row) -> UserOut:
     return UserOut(
         username=row["username"],
         start_grade=row["start_grade"],
         created_at=row["created_at"],
+        **parent_state(db, row["id"]).model_dump(),
     )
 
 
@@ -44,11 +46,13 @@ def _open_session(db: Conn, user: Row) -> SessionOut:
         "INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)",
         (token_hash, user["id"], expires.isoformat()),
     )
-    return SessionOut(token=token, user=_user_out(user), state=_load_state(db, user["id"]))
+    return SessionOut(token=token, user=_user_out(db, user), state=_load_state(db, user["id"]))
 
 
 @router.post("/auth/register", response_model=SessionOut, status_code=201)
 def register(body: RegisterIn, db: Conn = Depends(get_db)):
+    if body.parent and body.parent.password == body.password:
+        raise HTTPException(422, SAME_PASSWORD)
     try:
         user = db.execute(
             """INSERT INTO users (username, start_grade, password_hash, created_at)
@@ -57,6 +61,8 @@ def register(body: RegisterIn, db: Conn = Depends(get_db)):
         ).fetchone()
     except IntegrityErrors:
         raise HTTPException(409, "That username is already taken") from None
+    if body.parent:
+        add_parent(db, user, body.parent)
     return _open_session(db, user)
 
 
@@ -91,7 +97,7 @@ def me(
     db: Conn = Depends(get_db),
 ):
     return SessionOut(
-        token=x_session_token, user=_user_out(user), state=_load_state(db, user["id"])
+        token=x_session_token, user=_user_out(db, user), state=_load_state(db, user["id"])
     )
 
 
@@ -102,4 +108,4 @@ def update_me(
     db: Conn = Depends(get_db),
 ):
     db.execute("UPDATE users SET start_grade = ? WHERE id = ?", (body.start_grade, user["id"]))
-    return _user_out(db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone())
+    return _user_out(db, db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone())
