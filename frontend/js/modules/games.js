@@ -6,6 +6,7 @@ import { toast } from '../ui/cards.js';
 
 export const EXTRA_GAMES = [
   { module:'scan', label:'🔎 Odd One Out', file:'oddOneOut.js' },
+  { module:'scan', label:'🔤 Letter Hunt', file:'letterHunt.js' },
 ];
 
 export const extraGameButtons = (moduleKey, grade) => EXTRA_GAMES
