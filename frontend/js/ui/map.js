@@ -62,7 +62,7 @@ function moduleSelectCard(grade){
     <div class="chead">Choose a module</div>
     <div class="center cmuted" style="margin-bottom:.6rem">${gradeModulesDoneCount(grade)} of 4 done this grade</div>
     <div class="stack">
-      ${btn('read', `startReading(${grade})`)}
+      ${btn('read', `openReadingMenu(${grade})`)}
       ${btn('mem',  `openVisualMemoryMenu(${grade})`)}
       ${btn('scan', `openScanningMenu(${grade})`)}
       ${btn('eye',  `openEyeMenu(${grade})`)}

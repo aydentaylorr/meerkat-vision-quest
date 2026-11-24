@@ -237,6 +237,13 @@ def set_consent(body: ConsentIn, user: Row = Depends(current_user), db: Conn = D
             "If you did not do this, or change your mind, open the grown-ups area in the game, "
             "go to Settings and switch sharing off. That also deletes what was collected.\n",
         )
+    else:
+        # taking consent back removes what was collected, and the link to it
+        db.execute(
+            "DELETE FROM attempts WHERE anon_id IN (SELECT anon_id FROM players WHERE user_id = ?)",
+            (user["id"],),
+        )
+        db.execute("DELETE FROM players WHERE user_id = ?", (user["id"],))
     return parent_state(db, user["id"])
 
 

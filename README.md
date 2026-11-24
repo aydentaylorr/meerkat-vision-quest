@@ -17,7 +17,7 @@ backend/                 Python API (FastAPI) that also serves the game
     deps.py              shared request dependencies
     middleware.py        optional preview password, no-index header
     frontend.py          serves the static game files
-    routes/              auth.py (accounts), progress.py (saving), health.py
+    routes/              auth.py (accounts), progress.py (saving, collecting answers), health.py
   requirements.txt
 frontend/                the game: plain HTML, CSS and JavaScript (ES modules), no build step
   index.html             page skeleton
@@ -29,7 +29,7 @@ frontend/                the game: plain HTML, CSS and JavaScript (ES modules), 
     data/                content: stories, word lists, grades, difficulty, rewards
     art/                 the hand-drawn SVG world, Nomi and icons
     ui/                  screens: map, HUD, cards, sheets, sign-in, profile, grown-ups area
-    modules/             the four game modules and the runner that drives them
+    modules/             the four game modules, the runner that drives them, and extra games (games.js)
   assets/                favicon
 Dockerfile               container for deployment
 render.yaml              Render deployment blueprint
@@ -46,7 +46,10 @@ make run       # game and API on http://localhost:8000
 There is nothing to build: edit a file in `frontend/` and refresh the page. Locally, accounts and
 progress are stored in a SQLite file at `backend/data/meerkat.db` (git-ignored).
 
-`make lint` checks and formats the Python code.
+To add a game, put it in its own file in `frontend/js/modules/`, exporting `start(grade)`, and add one
+line for it to the list in `games.js`. It then shows up in that module's menu and its answers are collected like any other.
+
+`make lint` checks and formats the Python code. `make test` runs the backend checks.
 
 ## Configuration
 
@@ -70,13 +73,13 @@ All optional, set as environment variables.
 | POST | `/api/auth/login` | returns a session token and the saved progress |
 | POST | `/api/auth/logout` | |
 | GET / PATCH | `/api/me` | profile and saved progress / change starting grade |
-| PUT | `/api/progress` | saves the whole game state |
+| PUT | `/api/progress` | saves the whole game state and, with a grown-up's consent, copies newly finished exercises into `attempts` |
 | POST | `/api/parent` | adds the grown-up to an account that has none |
 | POST | `/api/parent/verify` | confirms the grown-up's email with the token from the emailed link |
 | POST | `/api/parent/resend` | sends the confirmation link again |
 | PUT | `/api/parent/email` | grown-up password and a new email, which then needs confirming |
 | POST | `/api/parent/unlock` | checks the grown-up password, to open the grown-ups area |
-| PUT | `/api/parent/consent` | grown-up password and consent on or off |
+| PUT | `/api/parent/consent` | grown-up password and consent on or off; off deletes what was collected |
 | POST | `/api/parent/reset` | emails a link for choosing a new grown-up password |
 | POST | `/api/parent/reset/confirm` | sets the new password with the token from that link |
 
@@ -88,16 +91,32 @@ Each account has one grown-up on record in the `parents` table: an email address
 their own and whether they have agreed to sharing. Sign-up on the web asks for them.
 
 - The grown-up confirms their email through a link sent to it. Until then the grown-ups area stays
-  closed and sharing stays off, whatever was ticked at sign-up.
+  closed and nothing is collected, whatever was ticked at sign-up.
 - The grown-ups area opens only with the grown-up password, which can never match the player's,
   and locks again when it closes. A forgotten one is reset through an emailed link.
-- Sharing is the grown-up's choice and only their password changes it. Switching it on emails
-  them.
+- Answers are collected only while sharing is on, and only for exercises played after the
+  grown-up both agreed and confirmed. Switching it on emails the grown-up. Switching it off deletes
+  that player's collected rows and their link.
 - Changing the email address means confirming the new one, and pauses sharing until then.
 - Links work once, expire (24 hours to confirm, 60 minutes to reset), are stored only as hashes,
   and put their token after a `#` so it never reaches server logs.
 
 Locally, with no mail server set, each email is printed in the server's output with its link.
+
+## Collected answers
+
+Every finished exercise adds one row to the `attempts` table, which is never overwritten, so it
+can be queried for trends across all players and age groups:
+
+| Column | Holds |
+| --- | --- |
+| `anon_id` | a random id per player; no username or user id |
+| `school_grade` | the grade the player said they are in, as the age group |
+| `ts`, `grade`, `module`, `kind`, `score`, `passed` | when, which level and game, and the result |
+| `detail_json` | what was shown and what was answered, plus `ctx`: minutes into the session, hour of day, touch screen or not, rounded screen width, text size, contrast, game version, platform |
+
+The `players` table is the only link between an account and its `anon_id`. The saved game keeps
+the same detail for the player's latest 40 exercises only.
 
 ## Deploying
 

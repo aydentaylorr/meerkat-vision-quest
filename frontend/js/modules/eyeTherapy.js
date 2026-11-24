@@ -3,6 +3,7 @@ import { setRun, view } from '../core/state.js';
 import { later } from '../core/timers.js';
 import { esc, pick } from '../core/utils.js';
 import { eyeConfig } from '../data/difficulty.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { card } from '../ui/cards.js';
 import { renderHud } from '../ui/hud.js';
@@ -15,6 +16,7 @@ export function openEyeMenu(grade){
     <div class="stack">
       <button class="abtn" onclick="startFusion(${grade},'convergence')">👀 Convergence</button>
       <button class="abtn o" onclick="startFusion(${grade},'divergence')">🕶️ Divergence (red/blue glasses)</button>
+      ${extraGameButtons('eye', grade)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }
@@ -61,6 +63,7 @@ export function startFusion(grade, kind){
 function playFusion(grade, kind){
   const c = eyeConfig(grade), conv = kind === 'convergence', name = conv ? 'Convergence' : 'Divergence';
   let round = 0, correct = 0, last = '', times = [];
+  const answers = [];
   const tip = conv
     ? 'Look at the orange dot in the middle. Slowly cross your eyes, like looking at the tip of your nose, until the two circles slide together into one. Type the letter or number you see in the middle circle.'
     : 'Wear your red/blue glasses, red lens over your left eye. Look at the middle and relax your eyes, like gazing far away, until the red and blue circles join into one. Type the letter or number you see.';
@@ -70,7 +73,7 @@ function playFusion(grade, kind){
     if(round >= c.rounds){
       const score = correct / c.rounds;
       const avg = times.length ? (times.reduce((x, y) => x + y, 0) / times.length / 1000).toFixed(1) : '0';
-      finishModule(grade, 'eye', score, score >= c.pass, `${correct} of ${c.rounds} correct · ${avg}s average`);
+      finishModule(grade, 'eye', score, score >= c.pass, `${correct} of ${c.rounds} correct · ${avg}s average`, kind, { rounds:answers });
       return;
     }
     let ch; do{ ch = pick(c.chars); }while(ch === last); last = ch;
@@ -90,14 +93,15 @@ function playFusion(grade, kind){
       el.disabled = true; el.classList.add(ok ? 'right' : 'wrong');
       if(!ok) el.value = ch;
       if(ok){ correct++; times.push(performance.now() - t0); }
+      answers.push([ch, typed, Math.round(performance.now() - t0)]);
       document.querySelectorAll('#cards button.abtn').forEach(b => b.disabled = true);
       later(() => { round++; next(); }, ok ? 700 : 1300);
     };
     window.__fuSubmit = () => {
       const v = (inp.value || '').trim().toUpperCase();
-      if(v) settle(v === ch);
+      if(v) settle(v === ch, v);
     };
-    window.__fuSkip = () => settle(false);
+    window.__fuSkip = () => settle(false, null);
   }
   next();
 }

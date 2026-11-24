@@ -5,6 +5,7 @@ import { later } from '../core/timers.js';
 import { clamp, pick, shuffle } from '../core/utils.js';
 import { symbolSearchConfig, trackingConfig } from '../data/difficulty.js';
 import { ELEMENT_META, elementPool } from '../data/words.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { BTN_COLOURS, card } from '../ui/cards.js';
 import { renderHud } from '../ui/hud.js';
@@ -17,6 +18,7 @@ export function openScanningMenu(grade){
     <div class="stack">
       <button class="abtn" onclick="openElementMenu(${grade},'tracking')">🧮 Tracking</button>
       <button class="abtn o" onclick="openElementMenu(${grade},'symbol')">🔍 Symbol Search</button>
+      ${extraGameButtons('scan', grade)}
     </div>
     <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
 }
@@ -94,7 +96,8 @@ function playTracking(grade, elementKey){
       const ok = Number.isFinite(typed);
       const diff = ok ? Math.abs(typed - actualCount) : actualCount;
       const score = clamp(1 - diff / Math.max(actualCount, 1), 0, 1);
-      finishModule(grade, 'scan', score, score >= 0.6, `You said ${ok ? typed : '—'} · it appeared ${actualCount} time${actualCount === 1 ? '' : 's'}`);
+      finishModule(grade, 'scan', score, score >= 0.6, `You said ${ok ? typed : '—'} · it appeared ${actualCount} time${actualCount === 1 ? '' : 's'}`,
+        'tracking', { element:elementKey, target, actual:actualCount, said: ok ? typed : null });
     };
   }
 }
@@ -110,6 +113,7 @@ function playSymbolSearch(grade, elementKey){
   const grid = shuffle(cells);
   const totalTargets = grid.filter(x => x === target).length;
   let found = 0, wrong = 0;
+  const hits = new Set(), wrongTaps = [];
   const smallText = pool.kind === 'word';
 
   function draw(){
@@ -128,12 +132,13 @@ function playSymbolSearch(grade, elementKey){
     if(!cellEl || cellEl.classList.contains('matched')) return;
     if(grid[i] === target){
       cellEl.classList.add('matched'); cellEl.onclick = null;
-      found++;
+      found++; hits.add(i);
       const fc = document.getElementById('foundCount');
       if(fc) fc.textContent = `Found ${found} of ${totalTargets}`;
       if(found >= totalTargets) later(finishSearch, 500);
     } else {
       wrong++;
+      if(wrongTaps.length < 30) wrongTaps.push([i, grid[i]]);
       cellEl.classList.add('wrong');
       later(() => cellEl.classList.remove('wrong'), 300);
     }
@@ -142,6 +147,8 @@ function playSymbolSearch(grade, elementKey){
   function finishSearch(){
     window.__searchClick = () => {}; window.__searchDone = () => {};
     const score = clamp(found / totalTargets - wrong * 0.03, 0, 1);
-    finishModule(grade, 'scan', score, score >= 0.6, `${found} of ${totalTargets} found · ${wrong} wrong tap${wrong === 1 ? '' : 's'}`);
+    const targets = grid.flatMap((x, i) => x === target ? [i] : []);
+    finishModule(grade, 'scan', score, score >= 0.6, `${found} of ${totalTargets} found · ${wrong} wrong tap${wrong === 1 ? '' : 's'}`,
+      'symbol', { element:elementKey, target, cols:cfg.cols, rows:cfg.rows, targets, missed:targets.filter(i => !hits.has(i)), wrong:wrongTaps });
   }
 }

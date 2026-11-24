@@ -83,7 +83,7 @@ function tabAbout(){
       <li>Convergence/divergence: Focus Trek is a safe stand-in only.</li>
       <li>Launch platforms — web only, or mobile wrappers too?</li>
       <li>COPPA / GDPR-K: account model, storage and analytics designed in from day one.</li></ol>
-    <p class="cmuted">Progress is saved to this player’s account on the game server. The player signs in with a username and password. A grown-up’s email address is kept with the account, confirmed through a link we send to it, as the record of who set it up.</p>`;
+    <p class="cmuted">Progress and the answers given in each exercise are saved to this player’s account on the game server. Only when a grown-up switches on sharing in Settings are the answers also studied together with other players’, by school grade and without usernames, to spot common mistakes. The player signs in with a username and password. A grown-up’s email address is kept with the account, confirmed through a link we send to it, as the record of who set it up.</p>`;
 }
 
 export function toggleSetting(k){ game.settings[k] = !game.settings[k]; save(); applySettings(); renderSheet(); }

@@ -1,6 +1,7 @@
 /* The page's HTML calls these by name from onclick="..." attributes, so they are made available on window. */
 import { openEyeMenu, startFusion } from './modules/eyeTherapy.js';
-import { startReading } from './modules/reading.js';
+import { startExtraGame } from './modules/games.js';
+import { openReadingMenu, startReading } from './modules/reading.js';
 import { closeExit, confirmQuit, retryModule } from './modules/runner.js';
 import { openElementMenu, openScanningMenu, startScanning } from './modules/scanning.js';
 import { openVisualMemoryMenu, startCardMatch, startFlashMemory } from './modules/visualMemory.js';
@@ -30,6 +31,7 @@ Object.assign(window, {
   openElementMenu,
   openEyeMenu,
   openGrade,
+  openReadingMenu,
   openScanningMenu,
   openSheet,
   parentChangeEmail,
@@ -48,6 +50,7 @@ Object.assign(window, {
   setConsent,
   setTab,
   startCardMatch,
+  startExtraGame,
   startFlashMemory,
   startFusion,
   startReading,
