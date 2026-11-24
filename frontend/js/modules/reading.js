@@ -1,12 +1,14 @@
 /* Reading module: read the story twice, answer questions, word check. */
 import { ARROW_DOWN, ARROW_UP } from '../art/icons.js';
 import { ART } from '../art/primitives.js';
-import { view } from '../core/state.js';
+import { setRun, view } from '../core/state.js';
 import { later } from '../core/timers.js';
 import { clamp, pick, shuffle } from '../core/utils.js';
 import { readConfig } from '../data/difficulty.js';
+import { extraGameButtons } from './games.js';
 import { finishModule, runModule } from './runner.js';
 import { BTN_COLOURS, card } from '../ui/cards.js';
+import { renderHud } from '../ui/hud.js';
 
 /* reveals `text` as a moving "block" — only the current chunk of `chunkSize`
    words is visible at a time (everything before and after it is hidden),
@@ -31,6 +33,21 @@ function revealChunksInto(elId, text, wpm, chunkSize, onDone){
   tick();
 }
 
+/* the story is the only Reading game until an extra one is added, so it then starts straight away */
+export function openReadingMenu(grade){
+  const extra = extraGameButtons('read', grade);
+  if(!extra) return startReading(grade);
+  setRun({ grade, moduleKey:'read', retryFn:null });
+  view.mode = 'intro'; view.msg = null; renderHud();
+  card(`<div class="ctitle">Reading</div>
+    <div class="chead">Choose a game</div>
+    <div class="stack">
+      <button class="abtn" onclick="startReading(${grade})">📖 Story Reading</button>
+      ${extra}
+    </div>
+    <button class="abtn ghost sm" style="margin-top:.6rem" onclick="openGrade(${grade})">Back</button>`, 'dock');
+}
+
 export function startReading(grade){
   const c = readConfig(grade);
   runModule(grade, 'read', {
@@ -48,6 +65,7 @@ function playReading(grade){
   const vocabRounds = Array.from({ length: c.vocab.rounds }, () => ({ target: pick(c.vocab.pool) }));
   let vi = 0, vocabCorrect = 0, qi = 0, compCorrect = 0;
   let measuredWpm = 0, practiceWpm = 0;
+  const quiz = [], vocab = [];
   const head = extra => `<div class="ctitle">${c.label}</div>
     <div class="center cmuted" style="font-size:.92rem">Word check ${Math.min(vi+1, c.vocab.rounds)} of ${c.vocab.rounds}</div>${extra}`;
 
@@ -55,7 +73,7 @@ function playReading(grade){
     if(vi >= c.vocab.rounds){
       const score = (vocabCorrect / c.vocab.rounds) * 0.5 + (compCorrect / c.questions.length) * 0.5;
       const detailText = `read at ${measuredWpm} wpm, practiced at ${practiceWpm} wpm · ${compCorrect} of ${c.questions.length} questions · ${vocabCorrect} of ${c.vocab.rounds} word check`;
-      finishModule(grade, 'read', score, score >= c.pass, detailText);
+      finishModule(grade, 'read', score, score >= c.pass, detailText, 'reading', { wpm:measuredWpm, practiceWpm, quiz, vocab });
       return;
     }
     const r = vocabRounds[vi];
@@ -90,6 +108,7 @@ function playReading(grade){
       const val = (inputEl.value || '').trim().toLowerCase();
       const ok = val === r.target.toLowerCase();
       if(ok) vocabCorrect++;
+      vocab.push([r.target, val.slice(0, r.target.length + 2)]);
       inputEl.disabled = true;
       inputEl.classList.add(ok ? 'right' : 'wrong');
       if(!ok) inputEl.value = r.target.toUpperCase();
@@ -168,6 +187,7 @@ function playReading(grade){
       const chosen = opts[k];
       const ok = chosen === cq.answer;
       if(ok) compCorrect++;
+      quiz.push([cq.options.indexOf(chosen), ok]);
       document.querySelectorAll('#quizOpts .abtn').forEach(b => b.disabled = true);
       document.getElementById('qopt' + k).classList.add(ok ? 'right' : 'wrong');
       if(!ok){

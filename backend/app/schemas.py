@@ -1,7 +1,7 @@
 """Request and response shapes for the API."""
 
 import re
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import AfterValidator, BaseModel, Field, field_validator
 
@@ -87,6 +87,18 @@ class ProfileUpdateIn(BaseModel):
 
 class ProgressIn(BaseModel):
     state: dict[str, Any]
+
+
+class LogEntry(BaseModel):
+    """One finished exercise from the saved game's log, with the answers given."""
+
+    ts: int = Field(gt=0)
+    grade: int = Field(ge=1, le=MAX_GRADE)
+    module: Literal["read", "mem", "scan", "eye"]
+    kind: str = Field(min_length=1, max_length=20)
+    score: int = Field(ge=0, le=100)
+    passed: bool = Field(alias="pass")
+    d: dict[str, Any]
 
 
 class UserOut(ParentOut):
