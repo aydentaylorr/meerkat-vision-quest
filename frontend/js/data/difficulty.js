@@ -1,17 +1,20 @@
 /* How each game gets harder as the grade goes up. */
-import { GRADES_COUNT, gradeInfo } from './grades.js';
-import { GRADE_COMPREHENSION } from './stories.js';
+import { gradeInfo } from './grades.js';
+import { storyFor } from './stories/index.js';
 import { MEMORY_ICON_POOL } from './words.js';
 
-export const gradeT = grade => (grade - 1) / (GRADES_COUNT - 1);
+/* The games are tuned on a scale that reaches grade 12, so each grade keeps its own difficulty
+   however many grades the game offers. */
+const SCALE_TOP = 12;
+export const gradeT = grade => (grade - 1) / (SCALE_TOP - 1);
 export const gLerp = (grade, a, b) => Math.round(a + (b - a) * gradeT(grade));
 
-export function readConfig(grade){
-  const gi = gradeInfo(grade);
+export function readConfig(grade, timesRead = 0){
+  const gi = gradeInfo(grade), story = storyFor(grade, timesRead);
   return {
     label: 'Reading', prompt: 'A story to read — twice — then a quick word check.',
     vocab: { rounds: gLerp(grade, 3, 5), flash: 500, pool: gi.words },
-    passage: gi.passage, chunkSize: gLerp(grade, 2, 6), questions: GRADE_COMPREHENSION[grade - 1],
+    title: story.title, passage: story.text, chunkSize: gLerp(grade, 2, 6), questions: story.questions,
     pass: 0.5
   };
 }

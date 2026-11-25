@@ -17,7 +17,7 @@ VERSION = os.environ.get("RENDER_GIT_COMMIT", "dev")[:7]
 # Optional: when set, every page and API call asks for this shared password (preview use).
 SITE_PASSWORD = os.environ.get("MVQ_SITE_PASSWORD", "")
 
-MAX_GRADE = 12
+MAX_GRADE = 7
 SESSION_DAYS = 30
 MAX_STATE_BYTES = 256 * 1024
 MAX_ATTEMPT_DETAIL_BYTES = 4 * 1024

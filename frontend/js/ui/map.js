@@ -27,7 +27,7 @@ export function mapCard(){
   card(`<div class="center cmuted" style="font-weight:800">Hi, ${esc(user.username)}!</div>
     <div class="ctitle">${all ? 'The desert is quiet' : `Grade ${grade}`}</div>
     <div class="chead">${all ? 'Every trail explored' : gi.title}</div>
-    <div class="center cmuted" style="margin-bottom:.5rem">${all ? 'You’ve completed all 12 grades!' : `${gradeModulesDoneCount(grade)} of 4 modules done`}</div>
+    <div class="center cmuted" style="margin-bottom:.5rem">${all ? `You’ve completed all ${GRADES_COUNT} grades!` : `${gradeModulesDoneCount(grade)} of 4 modules done`}</div>
     ${all ? '' : `<button class="abtn" onclick="openGrade(${grade})">Enter</button>`}
     <button class="abtn ghost sm" style="margin-top:.55rem" onclick="openSheet('parent')">For grown-ups</button>
     <div class="cmuted center" style="font-size:.7rem;margin-top:.5rem">Version ${esc(BUILD)}</div>`,

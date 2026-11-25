@@ -1,5 +1,6 @@
 /* Checks every story tree is sound. Run with `make test`. */
 import assert from 'node:assert';
+import { GRADES_COUNT } from './grades.js';
 import { STORY_PATHS } from './storyPaths.js';
 
 for(const s of STORY_PATHS){
@@ -18,7 +19,7 @@ for(const s of STORY_PATHS){
     assert.equal(new Set(p.q.options).size, p.q.options.length, `${s.id}/${id}: repeated option`);
   }
 }
-for(let grade = 1; grade <= 12; grade++){
+for(let grade = 1; grade <= GRADES_COUNT; grade++){
   assert(STORY_PATHS.some(s => grade >= s.grades[0] && grade <= s.grades[1]), `no story for grade ${grade}`);
 }
 console.log('ok');

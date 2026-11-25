@@ -18,7 +18,7 @@ export function renderHud(){
   } else if(gradeFullyDone(GRADES_COUNT)){
     ringsHtml = `<div style="display:flex;flex-direction:column;align-items:center;line-height:1.15;padding:.1rem .4rem">
       <b style="font-size:.92rem;white-space:nowrap">All done! 🎉</b>
-      <span class="cmuted" style="font-size:.66rem;white-space:nowrap">12 / 12 grades</span></div>`;
+      <span class="cmuted" style="font-size:.66rem;white-space:nowrap">${GRADES_COUNT} / ${GRADES_COUNT} grades</span></div>`;
   } else {
     const grade = currentGrade();
     ringsHtml = `<div style="display:flex;flex-direction:column;align-items:center;line-height:1.15;padding:.1rem .4rem">

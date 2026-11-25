@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { useTheme } from '../GameContext';
+import { useGame, useTheme } from '../GameContext';
 import { ARROW_DOWN, ARROW_UP, ART, clamp, pick, readConfig, shuffle } from '../shared';
 import { Art, B, BTN_COLOURS, Btn, CHead, CTitle, Dock, Focus, HintBar, Muted, Stack, Txt, useTimers } from '../ui';
 import { FlashType } from './FlashType';
@@ -22,7 +22,9 @@ export function readingSpec(grade) {
 function Reading({ grade, onFinish }) {
   const { c: colour, rem } = useTheme();
   const later = useTimers();
-  const c = useMemo(() => readConfig(grade), [grade]);
+  const { game, update } = useGame();
+  const [timesRead] = useState(() => game.storiesRead[grade] || 0);   // fixed while this story is being read
+  const c = useMemo(() => readConfig(grade, timesRead), [grade, timesRead]);
   const words = useMemo(() => Array.from({ length: c.vocab.rounds }, () => pick(c.vocab.pool)), [c]);
   const [phase, setPhase] = useState('first');   // first | speed | second | quiz | vocab
   const startedAt = useRef(0);
@@ -52,7 +54,7 @@ function Reading({ grade, onFinish }) {
     return (
       <Dock>
         <CTitle>{c.label}</CTitle>
-        <CHead>Read the story</CHead>
+        <CHead>{c.title}</CHead>
         <Txt style={{ fontSize: rem(1.15), lineHeight: rem(1.8), textAlign: 'center', marginBottom: rem(0.7) }}>{c.passage}</Txt>
         <Btn label="I’ve read it!" onPress={done} />
       </Dock>
@@ -119,6 +121,7 @@ function Reading({ grade, onFinish }) {
     if (vi + 1 < c.vocab.rounds) { setVi(vi + 1); return; }
     const { questions, words: wordsRight } = right.current;
     const score = (wordsRight / c.vocab.rounds) * 0.5 + (questions / c.questions.length) * 0.5;
+    update(draft => { draft.storiesRead[grade] = timesRead + 1; });   // a different story next time
     onFinish(score, score >= c.pass,
       `read at ${measuredWpm} wpm, practiced at ${practiceWpm} wpm · ${questions} of ${c.questions.length} questions · ${wordsRight} of ${c.vocab.rounds} word check`);
   };

@@ -1,7 +1,7 @@
 /* Reading module: read the story twice, answer questions, word check. */
 import { ARROW_DOWN, ARROW_UP } from '../art/icons.js';
 import { ART } from '../art/primitives.js';
-import { setRun, view } from '../core/state.js';
+import { game, setRun, view } from '../core/state.js';
 import { later } from '../core/timers.js';
 import { clamp, pick, shuffle } from '../core/utils.js';
 import { readConfig } from '../data/difficulty.js';
@@ -61,7 +61,8 @@ export function startReading(grade){
 /* Reading: read the story once normally (timed), read it again as a moving block at the child's
    own pace, answer five questions, then a flash-and-type word check. */
 function playReading(grade){
-  const c = readConfig(grade);
+  const timesRead = game.storiesRead[grade] || 0;
+  const c = readConfig(grade, timesRead);
   const vocabRounds = Array.from({ length: c.vocab.rounds }, () => ({ target: pick(c.vocab.pool) }));
   let vi = 0, vocabCorrect = 0, qi = 0, compCorrect = 0;
   let measuredWpm = 0, practiceWpm = 0;
@@ -73,7 +74,8 @@ function playReading(grade){
     if(vi >= c.vocab.rounds){
       const score = (vocabCorrect / c.vocab.rounds) * 0.5 + (compCorrect / c.questions.length) * 0.5;
       const detailText = `read at ${measuredWpm} wpm, practiced at ${practiceWpm} wpm · ${compCorrect} of ${c.questions.length} questions · ${vocabCorrect} of ${c.vocab.rounds} word check`;
-      finishModule(grade, 'read', score, score >= c.pass, detailText, 'reading', { wpm:measuredWpm, practiceWpm, quiz, vocab });
+      game.storiesRead[grade] = timesRead + 1;
+      finishModule(grade, 'read', score, score >= c.pass, detailText, 'reading', { story:c.title, wpm:measuredWpm, practiceWpm, quiz, vocab });
       return;
     }
     const r = vocabRounds[vi];
@@ -119,7 +121,7 @@ function playReading(grade){
 
   function startPassage(){
     card(`<div class="ctitle">${c.label}</div>
-      <div class="chead">Read the story</div>
+      <div class="chead">${c.title}</div>
       <p class="cbody">${c.passage}</p>
       <button class="abtn" onclick="__firstReadDone()">I’ve read it!</button>`, 'dock');
     const t0 = performance.now();

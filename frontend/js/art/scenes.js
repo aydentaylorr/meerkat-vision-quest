@@ -8,12 +8,7 @@ export const LOCATIONS = [
   { id:'g4',  x:64, y:14, w:11, art:'pottery', adv:4,  name:'Grade 4' },
   { id:'g5',  x:80, y:24, w:11, art:'acacia',  adv:5,  name:'Grade 5' },
   { id:'g6',  x:84, y:44, w:11, art:'rocks',   adv:6,  name:'Grade 6' },
-  { id:'g7',  x:68, y:52, w:11, art:'oasis',   adv:7,  name:'Grade 7' },
-  { id:'g8',  x:50, y:44, w:11, art:'cave',    adv:8,  name:'Grade 8' },
-  { id:'g9',  x:32, y:54, w:11, art:'pottery', adv:9,  name:'Grade 9' },
-  { id:'g10', x:14, y:48, w:11, art:'acacia',  adv:10, name:'Grade 10' },
-  { id:'g11', x:22, y:70, w:11, art:'rocks',   adv:11, name:'Grade 11' },
-  { id:'g12', x:44, y:78, w:11, art:'oasis',   adv:12, name:'Grade 12' }
+  { id:'g7',  x:68, y:52, w:11, art:'oasis',   adv:7,  name:'Grade 7' }
 ];
 
 export const SCENES = {};

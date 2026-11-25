@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
-from ..config import SESSION_DAYS
+from ..config import MAX_GRADE, SESSION_DAYS
 from ..db import Conn, IntegrityErrors, Row, get_db, utc_now
 from ..deps import current_user
 from ..schemas import LoginIn, ProfileUpdateIn, RegisterIn, SessionOut, UserOut
@@ -27,7 +27,8 @@ router = APIRouter(prefix="/api", tags=["auth"])
 def _user_out(db: Conn, row: Row) -> UserOut:
     return UserOut(
         username=row["username"],
-        start_grade=row["start_grade"],
+        # accounts made when there were more grades play from the highest one there is now
+        start_grade=min(row["start_grade"], MAX_GRADE),
         created_at=row["created_at"],
         **parent_state(db, row["id"]).model_dump(),
     )

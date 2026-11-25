@@ -109,7 +109,7 @@ function Play() {
             <Muted center bold>Hi, {user.username}!</Muted>
             <CTitle>{all ? 'The desert is quiet' : `Grade ${now}`}</CTitle>
             <CHead>{all ? 'Every trail explored' : gradeInfo(now).title.split(' · ')[1]}</CHead>
-            <Muted center style={{ marginBottom: rem(0.5) }}>{all ? 'You’ve completed all 12 grades!' : `${gradeModulesDoneCount(game, now)} of 4 modules done`}</Muted>
+            <Muted center style={{ marginBottom: rem(0.5) }}>{all ? `You’ve completed all ${GRADES_COUNT} grades!` : `${gradeModulesDoneCount(game, now)} of 4 modules done`}</Muted>
             {!all && <Btn label="Enter" onPress={() => openGrade(now)} />}
           </Dock>
         );

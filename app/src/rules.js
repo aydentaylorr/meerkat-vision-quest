@@ -8,7 +8,7 @@ import {
 const DEFAULT_STATE = {
   gradeProgress: {}, gems: 0, owned: [], equipped: { hat: null, item: null },
   streak: { count: 0, last: null, freezes: 2 },
-  log: [],
+  log: [], storiesRead: {},
   settings: { fs: 1, contrast: false, reduceMotion: false, sessionCap: 15 },
 };
 
@@ -18,6 +18,7 @@ export function normalizeState(raw) {
   s.streak = Object.assign({}, DEFAULT_STATE.streak, s.streak || {});
   s.equipped = Object.assign({}, DEFAULT_STATE.equipped, s.equipped || {});
   s.gradeProgress = s.gradeProgress || {};
+  s.storiesRead = s.storiesRead || {};
   return s;
 }
 

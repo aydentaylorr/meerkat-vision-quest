@@ -1,7 +1,7 @@
-/* The illustrated world behind every card: the scrolling map of twelve grades, and the three
+/* The illustrated world behind every card: the scrolling map of seven grades, and the three
    adventure backdrops. The web game's map is a 16:9 painting; a phone is tall, so here the same
    building blocks (dunes, cacti, paw trails, landmarks) are laid out as a trail that climbs from
-   Grade 1 at the bottom to Grade 12 under the open sky. */
+   Grade 1 at the bottom to Grade 7 under the open sky. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
@@ -16,9 +16,9 @@ const COL = 900;            // width of the trail column
 const MAX_COL_PX = 560;     // the column never gets wider than this on screen
 const NODE = 250;           // a landmark's width
 const STEP = 205;           // climb between one grade and the next
-const TOP = 500;            // Grade 12 sits this far down
+const TOP = 500;            // the top grade sits this far down
 const HEIGHT = TOP + (GRADES_COUNT - 1) * STEP + 380;
-const NODE_X = [300, 596, 330, 612, 292, 584, 322, 604, 300, 610, 334, 566];
+const NODE_X = [300, 596, 330, 612, 292, 584, 322];
 
 /* where a grade's landmark is centred */
 const spot = grade => ({ x: NODE_X[grade - 1], y: TOP + (GRADES_COUNT - grade) * STEP });
@@ -88,7 +88,7 @@ const MAP_BODY = [
     <path d="M330 170 q10 -8 20 0 q10 -8 20 0"/><path d="M400 200 q7 -6 14 0 q7 -6 14 0"/></g>`,
   `<g fill="#f6d6a6" opacity=".85"><path d="M40 352 l34 -54 h118 l30 54 Z"/><path d="M610 346 l26 -42 h96 l24 42 Z"/>
     <path d="M-560 352 l40 -62 h150 l34 62 Z"/><path d="M1180 352 l40 -62 h150 l34 62 Z"/></g>`,
-  dune(330, 30, 0, 'url(#sandA)'), dune(700, 34, 1, 'url(#sandB)'), dune(1250, 36, 0, 'url(#sandC)'), dune(1850, 38, 1, 'url(#sandD)'), dune(2450, 34, 0, NEAR_SAND),
+  dune(330, 30, 0, 'url(#sandA)'), dune(700, 34, 1, 'url(#sandB)'), dune(1000, 36, 0, 'url(#sandC)'), dune(1350, 38, 1, 'url(#sandD)'), dune(1700, 34, 0, NEAR_SAND),
   trails(),
   scenery(),
 ].join('');

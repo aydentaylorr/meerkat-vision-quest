@@ -7,12 +7,7 @@ export const GRADE_WORDS = [
   ['journey','wander','shelter','distant','steady','signal','gather','narrow','whisper','trail'],
   ['boulder','ravine','thicket','plateau','horizon','compass','drought','scatter','mirage','glimpse'],
   ['expedition','survival','navigate','terrain','erosion','migration','predator','wildlife','foothill','endurance'],
-  ['wilderness','atmosphere','vegetation','landscape','formation','geography','elevation','sediment','ecosystem','tributary'],
-  ['resilient','adaptation','sustained','perseverance','environment','temperature','excavation','conservation','hydration','sustenance'],
-  ['civilization','geological','meteorology','sustainable','phenomenon','navigation','vulnerable','archaeology','biodiversity','topography'],
-  ['unprecedented','interconnected','extraordinary','philosophical','environmental','geographical','uninhabited','indispensable','consequence','independence'],
-  ['irreplaceable','overwhelming','unsustainable','misrepresented','uncompromising','comprehensive','inevitable','conscientious','meticulous','relentless'],
-  ['counterintuitive','interdependence','incontrovertible','philosophically','extraordinarily','indistinguishable','inconsequential','simultaneously','unquestionably','encyclopedia']
+  ['wilderness','atmosphere','vegetation','landscape','formation','geography','elevation','sediment','ecosystem','tributary']
 ];
 
 export const MEMORY_ICON_POOL = ['💧','🌵','🦎','🪨','🌱','🐾','🦅','🌤️','🍃','🐍','🦂','🕳️','⭐','🏺','🔥','💎'];
@@ -37,9 +32,9 @@ export function elementPool(key){
     case 'numbers':       return { kind:'char',  items:'0123456789'.split('') };
     case 'lower':         return { kind:'char',  items:'abcdefghijklmnopqrstuvwxyz'.split('') };
     case 'upper':         return { kind:'char',  items:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') };
-    case 'beginnerWords': return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[0], GRADE_WORDS[1], GRADE_WORDS[2]))] };
-    case 'interWords':    return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[4], GRADE_WORDS[5], GRADE_WORDS[6]))] };
-    case 'advWords':      return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[9], GRADE_WORDS[10], GRADE_WORDS[11]))] };
+    case 'beginnerWords': return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[0], GRADE_WORDS[1]))] };
+    case 'interWords':    return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[2], GRADE_WORDS[3], GRADE_WORDS[4]))] };
+    case 'advWords':      return { kind:'word',  items:[...new Set([].concat(GRADE_WORDS[5], GRADE_WORDS[6]))] };
     case 'sightWords':    return { kind:'word',  items: SIGHT_WORDS };
     case 'pictures':      return { kind:'emoji', items: MEMORY_ICON_POOL };
     default:              return { kind:'char',  items:['?'] };

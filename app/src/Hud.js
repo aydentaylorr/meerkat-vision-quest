@@ -19,7 +19,7 @@ export function Hud({ running, onOpenSheet, onExit }) {
 
   let head, sub;
   if (running) { const m = MODULE_META[running.moduleKey]; head = `${m.icon} ${m.name}`; sub = `Grade ${running.grade}`; }
-  else if (gradeFullyDone(game, GRADES_COUNT)) { head = 'All done! 🎉'; sub = '12 / 12 grades'; }
+  else if (gradeFullyDone(game, GRADES_COUNT)) { head = 'All done! 🎉'; sub = `${GRADES_COUNT} / ${GRADES_COUNT} grades`; }
   else { const g = currentGrade(game, user); head = `Grade ${g}`; sub = `${gradeModulesDoneCount(game, g)} / 4 modules`; }
 
   const corner = { ...box, width: 44, height: 44, borderRadius: 16, alignItems: 'center', justifyContent: 'center' };

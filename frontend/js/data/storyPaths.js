@@ -59,32 +59,5 @@ export const STORY_PATHS = [
     spring: {
       text:"The spring was hidden behind a ring of thorn bushes. Nomi squeezed through and found clear water bubbling up between the stones. Under one flat stone lay the missing half of the map. Now the trail was complete, and tomorrow’s adventure was already waiting.",
       q:{ q:"What lay under the flat stone?", options:["The missing half of the map", "A ball of string", "A clay pot"], answer:"The missing half of the map" } }
-  } },
-
-  { id:'sandstorm', title:'The Night of the Sandstorm', grades:[8, 12], start:'start', pages:{
-    start: {
-      text:"By late afternoon the horizon had turned the colour of rust, and the wind carried a hiss that Nomi had learned to distrust. A sandstorm was gathering beyond the ridge. The mob’s youngest pups were still foraging near the dry riverbed, a long run from the burrow. Nomi could sprint there herself and guide them home, or she could climb the lookout rock and sound the alarm call, trusting that the pups would remember their training.",
-      q:{ q:"What warned Nomi that a storm was coming?", options:["The rust-coloured horizon and the hissing wind", "A call from the lookout rock", "Dark clouds and thunder"], answer:"The rust-coloured horizon and the hissing wind" },
-      choices:[{ label:"Run to the riverbed", to:'run' }, { label:"Climb the lookout and call", to:'call' }] },
-    run: {
-      text:"Nomi ran until her lungs burned. She reached the riverbed just as the first curtain of sand swept across it, and found three pups huddled behind a boulder. The burrow was too far to reach before the storm closed in. Nearby, however, an abandoned fox den yawned in the bank, and further along stood a thicket of thorn bushes that might break the wind.",
-      q:{ q:"Why could they not return to the burrow?", options:["It was too far to reach in time", "Its entrance was blocked", "The pups refused to move"], answer:"It was too far to reach in time" },
-      choices:[{ label:"Shelter in the old fox den", to:'den' }, { label:"Shelter in the thorn thicket", to:'thicket' }] },
-    call: {
-      text:"From the top of the lookout rock, Nomi gave the sharp, rising bark that meant danger. Far away, three small heads popped up. Two pups raced for the burrow immediately, exactly as they had practised. The third, the smallest, froze where it stood. The wall of sand was now only minutes away.",
-      q:{ q:"How did the smallest pup react to the alarm?", options:["It froze where it stood", "It raced for the burrow", "It hid behind a boulder"], answer:"It froze where it stood" },
-      choices:[{ label:"Call again with a different call", to:'again' }, { label:"Go and fetch the pup", to:'fetch' }] },
-    den: {
-      text:"The den was dry, deep, and mercifully empty. Nomi pushed the pups to the back and blocked the entrance with her own body. All night the storm roared overhead, but not a grain reached them. At dawn they emerged into a silent, rearranged desert and walked home to a mob that had not slept.",
-      q:{ q:"How did Nomi keep the sand out of the den?", options:["She blocked the entrance with her body", "She piled up stones", "She dug a second tunnel"], answer:"She blocked the entrance with her body" } },
-    thicket: {
-      text:"The thorn bushes slowed the wind but could not stop it. Nomi gathered the pups beneath her and turned her back to the storm, and together they waited, eyes shut tight. It was a long and uncomfortable night. Still, when the wind finally dropped, all four of them shook off the sand and trotted home, tired but unharmed.",
-      q:{ q:"What did the thorn bushes do to the wind?", options:["Slowed it but could not stop it", "Stopped it completely", "Made it stronger"], answer:"Slowed it but could not stop it" } },
-    again: {
-      text:"Nomi barked again, changing to the call that meant “come to me”. The little pup’s ears twitched. Recognising the sound, it turned and bolted toward the burrow, tumbling through the entrance moments before the storm struck. That night, Gran remarked that a calm voice often travels further than fast legs.",
-      q:{ q:"Which call made the pup move?", options:["The call for “come to me”", "The danger call, repeated", "A whistle"], answer:"The call for “come to me”" } },
-    fetch: {
-      text:"Nomi leapt down and raced across the open ground. She seized the pup by the scruff, as Gran had once carried her, and turned for home with sand already stinging her eyes. They reached the burrow together, breathless and coated in dust. The pup did not leave her side for a week.",
-      q:{ q:"How did Nomi carry the pup?", options:["By the scruff", "On her back", "In her arms"], answer:"By the scruff" } }
   } }
 ];

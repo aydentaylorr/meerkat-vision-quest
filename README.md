@@ -1,7 +1,7 @@
 # Meerkat Vision Quest
 
 A story-driven vision and reading practice game for children. Nomi the meerkat travels through
-12 grades; each grade has four modules (Reading, Visual Memory, Scanning, Eye Therapy). Players
+7 grades; each grade has five reading stories and four modules (Reading, Visual Memory, Scanning, Eye Therapy). Players
 sign in, and their progress, streak and rewards are saved to their account.
 
 ## Project layout
