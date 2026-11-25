@@ -10,7 +10,7 @@ import { MODULE_META } from '../data/modules.js';
 import { closeExit } from '../modules/runner.js';
 import { card, night, toast } from './cards.js';
 import { renderHud } from './hud.js';
-import { currentScene, renderWorld, travel } from './world.js';
+import { currentScene, fitMapAbove, renderWorld, travel } from './world.js';
 
 export function toMap(){
   closeExit(); clearTimers(); setRun(null); view.mode = 'map'; view.msg = null;
@@ -32,6 +32,7 @@ export function mapCard(){
     <button class="abtn ghost sm" style="margin-top:.55rem" onclick="openSheet('parent')">For grown-ups</button>
     <div class="cmuted center" style="font-size:.7rem;margin-top:.5rem">Version ${esc(BUILD)}</div>`,
     'dock');
+  fitMapAbove($('#cards .panel'));
 }
 
 export function tapNode(id){

@@ -1,15 +1,24 @@
 /* The illustrated map and the three adventure backdrops. */
 import { ART } from './primitives.js';
 
+/* One landmark per grade. Where they sit depends on the screen: see ui/mapLayout.js. */
 export const LOCATIONS = [
-  { id:'g1',  x:12, y:20, w:11, art:'rocks',   adv:1,  name:'Grade 1' },
-  { id:'g2',  x:30, y:12, w:11, art:'oasis',   adv:2,  name:'Grade 2' },
-  { id:'g3',  x:48, y:22, w:11, art:'cave',    adv:3,  name:'Grade 3' },
-  { id:'g4',  x:64, y:14, w:11, art:'pottery', adv:4,  name:'Grade 4' },
-  { id:'g5',  x:80, y:24, w:11, art:'acacia',  adv:5,  name:'Grade 5' },
-  { id:'g6',  x:84, y:44, w:11, art:'rocks',   adv:6,  name:'Grade 6' },
-  { id:'g7',  x:68, y:52, w:11, art:'oasis',   adv:7,  name:'Grade 7' }
+  { id:'g1', art:'rocks',   adv:1, name:'Grade 1' },
+  { id:'g2', art:'oasis',   adv:2, name:'Grade 2' },
+  { id:'g3', art:'cave',    adv:3, name:'Grade 3' },
+  { id:'g4', art:'pottery', adv:4, name:'Grade 4' },
+  { id:'g5', art:'acacia',  adv:5, name:'Grade 5' },
+  { id:'g6', art:'rocks',   adv:6, name:'Grade 6' },
+  { id:'g7', art:'oasis',   adv:7, name:'Grade 7' }
 ];
+
+/* footprint trails from each spot to the next; spots are in the painting's 1600 × 900 units */
+export function mapTrails(spots, drop){
+  return spots.slice(1).map((b, i) => {
+    const a = spots[i], bend = Math.min(65, Math.hypot(b.x - a.x, b.y - a.y) / 5);
+    return ART.pawTrail(a.x, a.y + drop, b.x, b.y + drop, i % 2 ? -bend : bend);
+  }).join('');
+}
 
 export const SCENES = {};
 
@@ -89,12 +98,7 @@ SCENES.map = function(){
     <path d="M1180 726 C1300 700 1400 714 1520 736"/>
     <path d="M240 726 C340 706 430 716 520 736"/></g>`);
 
-  /* footprint trails between locations */
-  const bends = Array.from({length: LOCATIONS.length - 1}, (_, i) => (i % 2 === 0 ? 65 : -65));
-  for(let i = 0; i < LOCATIONS.length - 1; i++){
-    const a = LOCATIONS[i], b = LOCATIONS[i+1];
-    P.push(ART.pawTrail(a.x*16, a.y*9 + 22, b.x*16, b.y*9 + 22, bends[i]));
-  }
+  P.push('<g id="trails"></g>');   // filled in once the landmarks are placed
 
   /* scenery — far, mid and foreground bands */
   P.push(ART.palm(548,392,.52), ART.palm(598,384,.42), ART.cactus(300,378,.46), ART.cactus(1032,362,.42));
